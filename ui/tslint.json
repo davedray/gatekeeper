@@ -1,0 +1,3 @@
+extends: [
+    "plugin:@blueprintjs/blueprint/recommended"
+]

@@ -1,0 +1,15 @@
+.nav {
+    a {
+        color: inherit;
+        &:hover {
+            color: inherit;
+        }
+        text-decoration: none;
+        &.active {
+            background: rgba(255,255,255,.08);
+            button {
+                font-weight: bold;
+            }
+        }
+    }
+}

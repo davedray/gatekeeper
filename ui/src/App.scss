@@ -1,0 +1,11 @@
+.App {
+  padding: 2em;
+  min-height: calc(100vh - 50px);
+  &.bp3-dark {
+    background: #202B33;
+  }
+
+  .bp3-callout, .bp3-card {
+    margin-bottom: 2em;
+  }
+}
