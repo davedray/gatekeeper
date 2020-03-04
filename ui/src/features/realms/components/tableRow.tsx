@@ -5,70 +5,75 @@ import {
     Button,
     Intent,
     Popover,
-    Toaster, Classes, H5
+    EditableText,
+    Classes,
+    H5
 } from "@blueprintjs/core";
-import { actions, realm} from "../../store";
 import './tableRow.scss';
+import {Realm} from "../../../types";
 interface props {
-    realm: realm;
+    realm: Realm;
+    onUpdate: (realm: Realm) => Promise<any>;
+    onDelete: (realm: Realm) => Promise<any>;
 }
-const toaster = Toaster.create({
-    position: "bottom-left",
-    maxToasts: 5
-});
 
-function TableRow({realm}: props) {
-    const [loading, setLoading] = useState(false);
+function TableRow({realm, ...actions}: props) {
+    const [toggling, setToggling] = useState(false);
+    const [updating, setUpdating] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
-    const onToggle = () => {
-        setLoading(true);
-        actions.updateRealm({
+    const [name, setName] = useState(realm.name);
+    const [description, setDescription] = useState(realm.description);
+
+    const onToggle = async () => {
+        setToggling(true);
+        let updated = {
             ...realm,
             enabled: !realm.enabled
-        }).then(() => {
-            toaster.show({
-                message: `Realm ${!realm.enabled ? 'enabled' : 'disabled'}`,
-                intent: Intent.SUCCESS,
-                icon: 'tick-circle'
-            })
-        }).catch(() => {
-            toaster.show({
-                message: `Coult not ${!realm.enabled ? 'enable' : 'disable'} realm`,
-                intent: Intent.DANGER
-            })
-        }).finally(() => setLoading(false));
-    }
+        };
+        await actions.onUpdate(updated);
+        setToggling(false);
+    };
 
-    const handleDelete = () => {
+    const onUpdateName = async () => {
+        setUpdating(true);
+        let updated = {
+            ...realm,
+            name
+        };
+        await actions.onUpdate(updated);
+        setUpdating(false);
+    };
+
+    const onUpdateDescription = async () => {
+        setUpdating(true);
+        let updated = {
+            ...realm,
+            description
+        };
+        await actions.onUpdate(updated);
+        setUpdating(false);
+    };
+
+    const handleDelete = async () => {
         setDeleting(true);
-        actions.deleteRealm(realm).then(() => {
-            toaster.show({
-                message: 'Realm deleted',
-                intent: Intent.SUCCESS,
-                icon: 'tick-circle'
-            })
-        }).catch(() => {
-            toaster.show({
-                message: 'Coult not delete realm',
-                intent: Intent.DANGER
-            });
-            setDeleting(false);
-        })
-    }
+        await actions.onDelete(realm);
+        setDeleting(false);
+    };
+
     return (
         <tr>
             <td>
-                {realm.name}
+                <EditableText className={updating ? 'bp3-skeleton' : ''} disabled={updating} value={name} onCancel={() => setName(realm.name)} onChange={setName} onConfirm={onUpdateName}/>
                 <br/>
                 <span className="bp3-text-small bp3-text-muted">
-                    {realm.description}
+                    <EditableText className={updating ? 'bp3-skeleton' : ''} disabled={updating} value={description} onCancel={() => setDescription(realm.description)} onChange={setDescription} onConfirm={onUpdateDescription}/>
                 </span>
             </td>
             <td>
-                {loading
+                {toggling
                     ? <span><Spinner className="TableRow__spinner" size={15}/></span>
-                    : <Switch disabled={loading} checked={realm.enabled} onChange={onToggle}/>
+                    : <Switch disabled={toggling} checked={realm.enabled} onChange={onToggle}/>
                 }
             </td>
             <td>
