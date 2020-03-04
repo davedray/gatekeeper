@@ -1,8 +1,8 @@
+use db::{connection::Postgres, Repository};
 use dotenv::dotenv;
+use http::server;
 use std::env;
 use std::net::SocketAddr;
-use db::{connection::Postgres, Repository};
-use http::server;
 
 const APPLICATION_NAME: &str = env!("CARGO_PKG_NAME");
 

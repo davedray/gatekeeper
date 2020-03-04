@@ -36,6 +36,7 @@ function CreateForm() {
             setDescription('');
             setEnabled(true);
         }).catch(async (e) => {
+           console.log(e);
            const err = await e;
            toaster.show({
                message: `Coult not create realm ${name}.${err.error ? ` ${err.error}` : ''}`,

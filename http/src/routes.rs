@@ -1,7 +1,7 @@
-use warp::{self, Filter};
-use crate::server::AppState;
 use crate::handlers;
+use crate::server::AppState;
 use uuid::Uuid;
+use warp::{self, Filter};
 pub fn routes(
     state: AppState,
 ) -> impl Filter<Extract = impl warp::Reply, Error = std::convert::Infallible> + Clone {
@@ -25,6 +25,42 @@ pub fn routes(
             .and(warp::delete())
             .and(with_state(state.clone()))
             .and_then(handlers::realms::delete::delete))
+        .or(warp::path!("api" / "realms" / Uuid / "users")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::create))
+        .or(warp::path!("api" / "realms" / Uuid / "users")
+            .and(warp::get())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::list_users))
+        .or(warp::path!("api" / "users" / Uuid / "ban")
+            .and(warp::put())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::ban_user))
+        .or(warp::path!("api" / "users" / Uuid / "unban")
+            .and(warp::put())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::unban_user))
+        .or(warp::path!("api" / "users" / Uuid / "suspend")
+            .and(warp::put())
+            .and(warp::body::json())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::suspend_user))
+        .or(warp::path!("api" / "users" / Uuid / "password")
+            .and(warp::put())
+            .and(warp::body::json())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::update_password))
+        .or(warp::path!("api" / "users" / Uuid / "username")
+            .and(warp::put())
+            .and(warp::body::json())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::update_username))
+        .or(warp::path!("api" / "users" / Uuid)
+            .and(warp::delete())
+            .and(with_state(state.clone()))
+            .and_then(handlers::realms::actions::delete_user))
         .recover(crate::errors::handle_rejection)
 }
 

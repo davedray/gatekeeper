@@ -1,6 +1,6 @@
+use crate::handlers::realms::responses::RealmResponse;
 use crate::server::AppState;
 use domain::{Repository, UpdateRealm};
-use crate::handlers::realms::responses::{RealmResponse};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -19,7 +19,7 @@ impl From<UpdateRealmRequest> for UpdateRealm {
             id: a.id.unwrap(),
             name: a.name,
             description: a.description,
-            enabled: a.enabled
+            enabled: a.enabled,
         }
     }
 }
@@ -37,10 +37,7 @@ pub async fn update(
         Ok(realm) => {
             let response: RealmResponse = RealmResponse::from(realm);
             Ok(warp::reply::json(&response))
-        },
-        Err(_) => {
-            Err(warp::reject())
         }
+        Err(_) => Err(warp::reject()),
     }
-
 }

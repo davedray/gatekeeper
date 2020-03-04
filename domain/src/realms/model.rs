@@ -1,5 +1,5 @@
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 pub struct Realm {
     id: Uuid,
@@ -23,19 +23,41 @@ pub struct UpdateRealm {
     pub enabled: bool,
 }
 
+pub struct AddRealmUser {
+    pub realm_id: Uuid,
+    pub username: String,
+    pub password: String,
+    pub suspended_until: Option<DateTime<Utc>>,
+}
+
 impl Realm {
-    pub fn new(id: Uuid, name: String, description: String, enabled: bool, created_at: DateTime<Utc>, updated_at: DateTime<Utc>) -> Self {
-        Self{
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+    pub fn new(
+        id: Uuid,
+        name: String,
+        description: String,
+        enabled: bool,
+        created_at: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
+    ) -> Self {
+        Self {
             id,
             name,
             description,
             enabled,
             created_at,
-            updated_at
+            updated_at,
         }
     }
 
-    pub fn id(&self) -> Uuid {
-        self.id
+    pub fn add_user(&self, req: crate::NewUser) -> AddRealmUser {
+        AddRealmUser {
+            realm_id: self.id,
+            username: req.username,
+            password: req.password,
+            suspended_until: req.suspended_until,
+        }
     }
 }

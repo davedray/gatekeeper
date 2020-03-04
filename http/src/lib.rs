@@ -1,7 +1,7 @@
-pub mod server;
-mod routes;
-mod handlers;
 mod errors;
+mod handlers;
+mod routes;
+pub mod server;
 #[cfg(test)]
 mod tests {
     #[test]

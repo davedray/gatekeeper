@@ -90,6 +90,9 @@ const StateProvider: FunctionComponent = ( { children } ) => {
 };
 
 const toJSON = (response: Response) => {
+    if (response.status >= 400) {
+        throw new Error('Internal Server Error');
+    }
     if (response.ok) {
         return response.json();;
     } else {

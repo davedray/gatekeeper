@@ -1,10 +1,10 @@
-use std::convert::Infallible;
 use serde_derive::Serialize;
-use warp::{Rejection, Reply, http::StatusCode};
+use std::convert::Infallible;
+use warp::{http::StatusCode, Rejection, Reply};
 #[derive(Debug)]
 pub enum Error {
     Database(String),
-    DuplicateEntity(String)
+    DuplicateEntity(String),
 }
 
 impl warp::reject::Reject for Error {}
@@ -26,11 +26,11 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> 
         error = "Not Found";
         code = StatusCode::NOT_FOUND;
         message = "Resource Not Found";
-    } else if let Some(Error::Database(e)) = err.find(){
+    } else if let Some(Error::Database(e)) = err.find() {
         error = "Database Error";
         code = StatusCode::INTERNAL_SERVER_ERROR;
         message = e
-    } else if let Some(Error::DuplicateEntity(e)) = err.find(){
+    } else if let Some(Error::DuplicateEntity(e)) = err.find() {
         error = "Duplicate Entity";
         code = StatusCode::UNPROCESSABLE_ENTITY;
         message = e;
@@ -51,7 +51,9 @@ impl From<domain::Error> for Error {
     fn from(err: domain::Error) -> Self {
         match err {
             domain::Error::Database(msg) => Self::Database(msg),
-            domain::Error::DuplicateRealm(msg) => Self::DuplicateEntity(format!("A realm with the name {} already exists.", msg)),
+            domain::Error::DuplicateRealm(msg) => {
+                Self::DuplicateEntity(format!("A realm with the name {} already exists.", msg))
+            }
         }
     }
 }
