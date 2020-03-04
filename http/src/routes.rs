@@ -4,7 +4,7 @@ use crate::handlers;
 use uuid::Uuid;
 pub fn routes(
     state: AppState,
-) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+) -> impl Filter<Extract = impl warp::Reply, Error = std::convert::Infallible> + Clone {
     warp::path::end()
         .map(handlers::index::index)
         .or(warp::path!("api" / "realms")
@@ -25,6 +25,7 @@ pub fn routes(
             .and(warp::delete())
             .and(with_state(state.clone()))
             .and_then(handlers::realms::delete::delete))
+        .recover(crate::errors::handle_rejection)
 }
 
 fn with_state(

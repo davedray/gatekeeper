@@ -1,27 +1,17 @@
-use anyhow::Error as OpaqueError;
-use crate::{GetRealmError, SaveRealmError};
-
-#[derive(thiserror::Error, Debug)]
-#[error("Something went wrong.")]
-pub struct DatabaseError {
-    #[from]
-    source: OpaqueError,
+/// All possible Gatekeeper domain errors
+#[derive(Debug)]
+pub enum Error {
+    Database(String),
+    DuplicateRealm(String),
 }
 
-impl From<GetRealmError> for DatabaseError {
-    fn from(e: GetRealmError) -> Self {
-        match e {
-            GetRealmError::NotFound { source, .. } => source,
-            GetRealmError::DatabaseError(e) => e,
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match *self {
+            Error::Database(ref msg) => write!(f, "Database: {}", msg),
+            Error::DuplicateRealm(ref msg) => write!(f, "Duplicate Realm: {}", msg),
         }
     }
 }
 
-impl From<SaveRealmError> for DatabaseError {
-    fn from(e: SaveRealmError) -> Self {
-        match e {
-            SaveRealmError::UniqueName { source, .. } => source,
-            SaveRealmError::DatabaseError(e) => e,
-        }
-    }
-}
+impl std::error::Error for Error {}

@@ -1,6 +1,7 @@
 pub mod server;
 mod routes;
 mod handlers;
+mod errors;
 #[cfg(test)]
 mod tests {
     #[test]

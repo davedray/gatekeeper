@@ -2,7 +2,7 @@ use crate::server::AppState;
 use domain::{Repository, NewRealm};
 use crate::handlers::realms::responses::{RealmResponse};
 use serde::{Deserialize, Serialize};
-
+use crate::errors::Error;
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct NewRealmRequest {
@@ -33,8 +33,8 @@ pub async fn create(
             let response: RealmResponse = RealmResponse::from(realm);
             Ok(warp::reply::json(&response))
         },
-        Err(_) => {
-            Err(warp::reject())
+        Err(e) => {
+            Err(warp::reject::custom(Error::from(e)))
         }
     }
 
