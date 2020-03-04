@@ -4,7 +4,7 @@ import {
 	Intent,
 	H3,
 } from "@blueprintjs/core";
-import Picker from "../../components/realms/picker";
+import Picker from "../../features/realms/containers/picker";
 
 import './styles.scss';
 

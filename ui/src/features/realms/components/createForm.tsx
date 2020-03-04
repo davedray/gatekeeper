@@ -1,49 +1,36 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Switch,
     Button,
-    Intent,
-    Toaster,
     FormGroup,
     InputGroup,
     TextArea,
 } from "@blueprintjs/core";
-import { actions} from "../../store";
+import {Realm} from "../../../types";
 
-const toaster = Toaster.create({
-    position: "bottom-left",
-    maxToasts: 5
-});
-
-function CreateForm() {
-    const [loading, setLoading] = useState(false);
+interface props {
+    onSave: (realm: Omit<Realm, "id">) => Promise<any>;
+    isSaving: boolean;
+    error: string|null;
+}
+function CreateForm({onSave, isSaving, error}: props) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [enabled, setEnabled] = useState(true);
-    const handleSubmit = () => {
-        setLoading(true);
-        actions.createRealm({
+    const handleSubmit = async () => {
+        await onSave({
             name,
             enabled,
             description
-        }).then(() => {
-            toaster.show({
-                message: `Realm ${name} created`,
-                intent: Intent.SUCCESS,
-                icon: 'tick-circle'
-            })
+        });
+    };
+    useEffect(() => {
+        if (!isSaving && !error) {
             setName('');
             setDescription('');
             setEnabled(true);
-        }).catch(async (e) => {
-           console.log(e);
-           const err = await e;
-           toaster.show({
-               message: `Coult not create realm ${name}.${err.error ? ` ${err.error}` : ''}`,
-               intent: Intent.DANGER
-           })
-        }).finally(() => setLoading(false));
-    }
+        }
+    }, [isSaving, error]);
     return (
         <>
         <FormGroup
@@ -62,7 +49,7 @@ function CreateForm() {
             <TextArea id="description" fill={true} value={description} onChange={(e: any) => setDescription(e.target.value)}/>
         </FormGroup>
         <Switch label="Enabled" checked={enabled} onChange={() => setEnabled(!enabled)}/>
-        <Button loading={loading} disabled={name === ''} icon="new-object" text="Create Realm" onClick={handleSubmit}/>
+        <Button loading={isSaving} disabled={name === ''} icon="new-object" text="Create Realm" onClick={handleSubmit}/>
         </>
     );
 }

@@ -1,10 +1,10 @@
 import React from 'react';
-import Nav from './components/nav';
+import Nav from '../features/nav';
 import {
 	Switch,
 	Route,
 } from "react-router-dom";
-import Pages from './pages';
+import Pages from '../pages';
 import './App.scss';
 
 function App() {

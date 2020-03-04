@@ -3,12 +3,14 @@ import {
     HTMLTable,
 } from "@blueprintjs/core";
 import TableRow from "./tableRow";
-import { realm} from "../../store";
+import {Realm} from "../../../types";
 
 interface props {
-    realms: realm[]
+    realms: any,
+    onUpdateRealm: (realm: Realm) => Promise<any>;
+    onDeleteRealm: (realm: Realm) => Promise<any>;
 }
-function RealmCard({realms}: props) {
+function RealmCard({realms, onUpdateRealm, onDeleteRealm}: props) {
     return (
       <HTMLTable
         bordered
@@ -22,10 +24,12 @@ function RealmCard({realms}: props) {
             </tr>
           </thead>
           <tbody>
-          {realms.map((realm) => (
+          {realms.map((realm: any) => (
               <TableRow
                   key={realm.id}
                   realm={realm}
+                  onUpdate={onUpdateRealm}
+                  onDelete={onDeleteRealm}
               />
           ))}
           </tbody>
