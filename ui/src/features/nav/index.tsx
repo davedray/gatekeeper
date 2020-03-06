@@ -18,7 +18,7 @@ function Nav() {
 				to="/"
 				activeClassName=""
 			>
-				<Navbar.Heading>Oathkeeper</Navbar.Heading>
+				<Navbar.Heading>Gatekeeper</Navbar.Heading>
 			</NavLink>
 			<Navbar.Divider />
 			<NavLink

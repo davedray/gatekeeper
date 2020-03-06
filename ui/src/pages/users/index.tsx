@@ -1,19 +1,48 @@
-import React from 'react';
-import {
-	Callout,
-	Intent,
-	H3,
-} from "@blueprintjs/core";
- 
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux'
+import {RootState} from '../../app/rootReducer'
+import {fetchUsers} from '../../app/usersList/usersListSlice';
 
+import {Callout, Card, H3, Intent, NonIdealState,} from "@blueprintjs/core";
+import Picker from "../../features/realms/containers/picker";
 import './styles.scss';
+import Table from "../../features/users/table";
+import {User} from "../../types";
 
 function Users() {
+    const dispatch = useDispatch();
+    const { selectedRealm } = useSelector((state: RootState) => state.realmsList);
+    let users: User[]|undefined = [];
+    let isLoading: boolean|undefined = false;
+    ({ usersByRealmId: { [selectedRealm?.id || '']: users }, isLoading: { [selectedRealm?.id || '']: isLoading} } = useSelector((state: RootState) => state.usersList));
+    if (!users) {
+        users = [];
+    }
+    const hasUsers = users.length > 0;
+    useEffect(() => {
+        if (selectedRealm && !hasUsers) {
+            dispatch(fetchUsers(selectedRealm))
+        }
+    }, [dispatch, selectedRealm, hasUsers])
   return (
-  <Callout intent={Intent.PRIMARY}>
-      <H3>Users</H3>
-      <p>Users are entities that are able to log into your system. They can have attributes associated with themselves like email, username, address, phone number, and birth day. They can be assigned group membership and have specific roles assigned to them.</p>
-  </Callout>
+    <div>
+      <Callout intent={Intent.PRIMARY}>
+          <H3>Users</H3>
+          <p>Users are entities that are able to log into your system. They can have attributes associated with themselves like email, username, address, phone number, and birth day. They can be assigned group membership and have specific roles assigned to them.</p>
+      </Callout>
+      <Picker/>
+      <Card className={isLoading ? 'bp3-skeleton' : ''}>
+      {!users || users.length === 0 ? (
+          <NonIdealState
+              icon="user"
+              title="No Users Exist"
+              description="Create a user to populate this list"
+          />
+          ) : (
+          <Table users={users || []}/>
+          )}
+      </Card>
+    </div>
   );
 }
 
