@@ -16,6 +16,11 @@ export interface GroupsResult {
     count: number;
 }
 
+export interface GroupUsersResult {
+    ids: string[];
+    count: number;
+}
+
 export interface RealmResult extends Realm{}
 export interface UserResult extends User{}
 export interface GroupResult extends Group{}
@@ -76,5 +81,15 @@ export default {
     },
     async deleteGroup(group: Group): Promise<void> {
         await axios.delete(`/api/groups/${group.id}`);
+    },
+    async getGroupUsers(group: Group): Promise<string[]> {
+        let response = await axios.get<GroupUsersResult>(`/api/groups/${group.id}/users`);
+        return response.data.ids;
+    },
+    async createGroupUser(group: Group, user: User): Promise<void> {
+        await axios.post(`/api/groups/${group.id}/users/${user.id}`);
+    },
+    async deleteGroupUser(group: Group, user: User): Promise<void> {
+        await axios.delete<GroupUsersResult>(`/api/groups/${group.id}/users/${user.id}`);
     },
 }
