@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use crate::{Repository, Error};
 
 pub struct User {
     id: Uuid,
@@ -17,26 +18,22 @@ pub struct NewUser {
     pub suspended_until: Option<DateTime<Utc>>,
 }
 
-pub struct BanUser {
-    pub id: Uuid,
-    pub banned: bool,
-}
-
-pub struct SuspendUser {
-    pub id: Uuid,
-    pub suspended_until: Option<DateTime<Utc>>,
-}
-
 pub struct ChangeUserPassword {
     pub id: Uuid,
     pub password: String
 }
 
-pub struct ChangeUsername {
+pub struct UpdateUser {
     pub id: Uuid,
-    pub username: String,
+    pub username: Option<String>,
+    pub banned: Option<bool>,
+    pub suspended_until: Option<DateTime<Utc>>,
 }
 
+pub struct LoginUser {
+    pub username: String,
+    pub password: String,
+}
 
 impl User {
     pub fn id(&self) -> Uuid {
@@ -63,5 +60,13 @@ impl User {
             created_at,
             updated_at,
         }
+    }
+
+    pub fn login(
+        realm_id: Uuid,
+        login: LoginUser,
+        repo: &impl Repository
+    ) -> Result<Self, Error> {
+        repo.find_realm_user_by_username_password(realm_id, login)
     }
 }

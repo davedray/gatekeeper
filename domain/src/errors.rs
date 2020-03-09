@@ -3,6 +3,7 @@
 pub enum Error {
     Database(String),
     DuplicateRealm(String),
+    LoginFailure,
 }
 
 impl std::fmt::Display for Error {
@@ -10,6 +11,7 @@ impl std::fmt::Display for Error {
         match *self {
             Error::Database(ref msg) => write!(f, "Database: {}", msg),
             Error::DuplicateRealm(ref msg) => write!(f, "Duplicate Realm: {}", msg),
+            Error::LoginFailure => write!(f, "Login Failure: This username / password combination does not exist"),
         }
     }
 }

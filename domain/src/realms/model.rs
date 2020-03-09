@@ -30,6 +30,12 @@ pub struct AddRealmUser {
     pub suspended_until: Option<DateTime<Utc>>,
 }
 
+pub struct AddRealmGroup {
+    pub realm_id: Uuid,
+    pub name: String,
+    pub description: String,
+}
+
 impl Realm {
     pub fn id(&self) -> Uuid {
         self.id
@@ -58,6 +64,14 @@ impl Realm {
             username: req.username,
             password: req.password,
             suspended_until: req.suspended_until,
+        }
+    }
+
+    pub fn add_group(&self, req: crate::NewGroup) -> AddRealmGroup {
+        AddRealmGroup {
+            realm_id: self.id,
+            name: req.name,
+            description: req.description,
         }
     }
 }

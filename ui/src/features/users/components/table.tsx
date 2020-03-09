@@ -2,8 +2,8 @@ import React from 'react';
 import {
     HTMLTable,
 } from "@blueprintjs/core";
-import TableRow from "./tableRow";
-import {User} from "../../types";
+import TableRow from "../containers/tableRow";
+import {User} from "../../../types";
 
 interface props {
     users: User[]

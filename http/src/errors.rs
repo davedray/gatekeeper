@@ -5,6 +5,7 @@ use warp::{http::StatusCode, Rejection, Reply};
 pub enum Error {
     Database(String),
     DuplicateEntity(String),
+    Unauthorized(String),
 }
 
 impl warp::reject::Reject for Error {}
@@ -34,6 +35,10 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> 
         error = "Duplicate Entity";
         code = StatusCode::UNPROCESSABLE_ENTITY;
         message = e;
+    } else if let Some(Error::Unauthorized(e)) = err.find() {
+        error = "Unauthorized";
+        code = StatusCode::UNAUTHORIZED;
+        message = e;
     } else {
         error = "Unknown";
         code = StatusCode::INTERNAL_SERVER_ERROR;
@@ -53,6 +58,9 @@ impl From<domain::Error> for Error {
             domain::Error::Database(msg) => Self::Database(msg),
             domain::Error::DuplicateRealm(msg) => {
                 Self::DuplicateEntity(format!("A realm with the name {} already exists.", msg))
+            },
+            domain::Error::LoginFailure => {
+                Self::Unauthorized(format!("This username / password combination does not exist"))
             }
         }
     }

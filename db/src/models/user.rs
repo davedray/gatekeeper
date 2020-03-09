@@ -34,23 +34,41 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(AsChangeset)]
+#[derive(Identifiable, Queryable, Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[table_name = "users"]
-pub struct SuspendUser {
+pub struct UserWithPassword {
     pub id: Uuid,
-    pub suspended_until: Option<DateTime<Utc>>,
-    pub updated_at: DateTime<Utc>,
-}
-
-#[derive(AsChangeset)]
-#[table_name = "users"]
-pub struct BanUser {
-    pub id: Uuid,
+    pub realm_id: Uuid,
+    pub username: String,
+    pub password_salt: String,
+    pub password_hash: String,
     pub banned: bool,
+    pub suspended_until: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
 
+impl UserWithPassword {
+    pub fn check_password(&self, plaintext: String) -> bool {
+        let check_hash = BASE64
+            .encode(digest(&SHA256, (plaintext + self.password_salt.as_str()).as_bytes()).as_ref());
+        return check_hash.eq(&self.password_hash);
+    }
+}
 
+impl From<UserWithPassword> for domain::User {
+    fn from(a: UserWithPassword) -> Self {
+        domain::User::new(
+            a.id,
+            a.realm_id,
+            a.username,
+            a.banned,
+            a.suspended_until,
+            a.created_at,
+            a.updated_at,
+        )
+    }
+}
 #[derive(AsChangeset)]
 #[table_name = "users"]
 pub struct UpdateUserPassword {
@@ -62,9 +80,11 @@ pub struct UpdateUserPassword {
 
 #[derive(AsChangeset)]
 #[table_name = "users"]
-pub struct UpdateUsername {
+pub struct UpdateUser {
     pub id: Uuid,
-    pub username: String,
+    pub username: Option<String>,
+    pub banned: Option<bool>,
+    pub suspended_until: Option<Option<DateTime<Utc>>>,
     pub updated_at: DateTime<Utc>,
 }
 
@@ -126,21 +146,13 @@ impl NewUser {
     }
 }
 
-impl SuspendUser {
-    pub fn from(a: domain::SuspendUser) -> Self {
+impl UpdateUser {
+    pub fn from(a: domain::UpdateUser) -> Self {
         Self {
             id: a.id,
-            suspended_until: a.suspended_until,
-            updated_at: Utc::now(),
-        }
-    }
-}
-
-impl BanUser {
-    pub fn from(a: domain::BanUser) -> Self {
-        Self {
-            id: a.id,
+            username: a.username,
             banned: a.banned,
+            suspended_until: Option::from(a.suspended_until),
             updated_at: Utc::now(),
         }
     }
@@ -153,16 +165,6 @@ impl UpdateUserPassword {
             id: a.id,
             password_salt,
             password_hash,
-            updated_at: Utc::now(),
-        }
-    }
-}
-
-impl UpdateUsername {
-    pub fn from(a: domain::ChangeUsername) -> Self {
-        Self {
-            id: a.id,
-            username: a.username,
             updated_at: Utc::now(),
         }
     }

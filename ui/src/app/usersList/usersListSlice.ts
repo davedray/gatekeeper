@@ -144,7 +144,7 @@ export const createUser = (realm: Realm, user: NewUser): AppThunk => async dispa
         dispatch(createErrorToast({
             message: err.toString() || 'Could not create user'
         }));
-        return dispatch(createUserFailure(err.toString()))
+        return dispatch(createUserFailure({realm: realm.id, error: err.toString()}));
     }
 };
 
@@ -163,3 +163,52 @@ export const deleteUser = (user: User): AppThunk => async dispatch => {
         return dispatch(deleteUserFailure({user: user.id, error: err.toString()}))
     }
 };
+
+export const banUser = (user: User): AppThunk => async dispatch => {
+    try {
+        dispatch(updateUserStart(user.id));
+        user = await actions.banUser(user);
+        dispatch(createSuccessToast({
+            message: 'User banned'
+        }));
+        return dispatch(updateUserSuccess(user));
+    } catch (err) {
+        dispatch(createErrorToast({
+            message: err.toString() || 'Could not ban user'
+        }));
+        return dispatch(updateUserFailure({user: user.id, error: err.toString()}));
+    }
+};
+
+export const unbanUser = (user: User): AppThunk => async dispatch => {
+    try {
+        dispatch(updateUserStart(user.id));
+        user = await actions.unbanUser(user);
+        dispatch(createSuccessToast({
+            message: 'User unbanned'
+        }));
+        return dispatch(updateUserSuccess(user));
+    } catch (err) {
+        dispatch(createErrorToast({
+            message: err.toString() || 'Could not unban user'
+        }));
+        return dispatch(updateUserFailure({user: user.id, error: err.toString()}));
+    }
+};
+
+
+export const suspendUser = (user: User, until: Date): AppThunk => async dispatch => {
+    try {
+        dispatch(updateUserStart(user.id));
+        user = await actions.suspendUser(user, until);
+        dispatch(createSuccessToast({
+            message: `User ${user.suspendedUntil === null ? 'unsuspended' : 'suspended'}`
+        }));
+        return dispatch(updateUserSuccess(user));
+    } catch (err) {
+        dispatch(createErrorToast({
+            message: err.toString() || 'Could not suspend user'
+        }));
+        return dispatch(updateUserFailure({user: user.id, error: err.toString()}));
+    }
+}

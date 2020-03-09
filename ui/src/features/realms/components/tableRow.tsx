@@ -36,6 +36,7 @@ function TableRow({realm, ...actions}: props) {
     };
 
     const onUpdateName = async () => {
+        if (name === realm.name) return;
         setUpdating(true);
         let updated = {
             ...realm,
@@ -46,6 +47,7 @@ function TableRow({realm, ...actions}: props) {
     };
 
     const onUpdateDescription = async () => {
+        if (description === realm.description) return;
         setUpdating(true);
         let updated = {
             ...realm,
@@ -78,9 +80,11 @@ function TableRow({realm, ...actions}: props) {
             </td>
             <td>
                 <Popover
+                    canEscapeKeyClose
+                    onClose={() => setPopoverOpen(false)}
                     content={ <div className="TableRow__popover">
                         <H5>Confirm deletion</H5>
-                        <p>Are you sure you want to delete these items? You won't be able to recover them.</p>
+                        <p>Are you sure you want to delete this realm? You won't be able to recover it.</p>
                         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>
                             <Button onClick={() => setPopoverOpen(!popoverOpen)} className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                                 Cancel

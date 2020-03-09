@@ -1,4 +1,4 @@
-use crate::models::{Realm, UpdateRealm, User};
+use crate::models::{Realm, UpdateRealm};
 use crate::Postgres;
 use diesel::prelude::*;
 use diesel::result::Error;
@@ -35,9 +35,4 @@ pub fn delete(repo: &Postgres, realm: Uuid) -> Option<Error> {
     diesel::delete(realms.find(realm))
         .execute(&repo.conn())
         .err()
-}
-
-pub fn list_users(repo: &Postgres, realm: Uuid) -> Result<Vec<User>, Error> {
-    use crate::schema::users::dsl::*;
-    users.filter(realm_id.eq(realm)).select((id, realm_id, username, banned, suspended_until, created_at, updated_at)).load(&repo.conn())
 }

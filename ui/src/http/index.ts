@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {Realm, NewUser, User} from "../types";
+import {Realm, NewUser, User, Group, NewGroup, UpdateGroup} from "../types";
 
 export interface RealmsResult {
     realms: Realm[];
@@ -11,8 +11,14 @@ export interface UsersResult {
     count: number;
 }
 
+export interface GroupsResult {
+    groups: Group[];
+    count: number;
+}
+
 export interface RealmResult extends Realm{}
 export interface UserResult extends User{}
+export interface GroupResult extends Group{}
 
 export default {
     async getRealms(): Promise<RealmsResult> {
@@ -35,22 +41,40 @@ export default {
         return result.data;
     },
     async createUser(realm: Realm, user:NewUser): Promise<UserResult> {
-        const result = await axios.post<User>('/api/users', user);
+        const result = await axios.post<User>(`/api/realms/${realm.id}/users`, user);
         return result.data;
     },
     async banUser(user: User): Promise<UserResult> {
-        const result = await axios.put(`/api/realms/${user.id}/ban`);
+        const result = await axios.put(`/api/users/${user.id}/ban`);
         return result.data;
     },
     async unbanUser(user: User): Promise<UserResult> {
-        const result = await axios.put(`/api/realms/${user.id}/unban`);
+        const result = await axios.put(`/api/users/${user.id}/unban`);
         return result.data;
     },
-    async suspendUser(user: User): Promise<UserResult> {
-        const result = await axios.put(`/api/realms/${user.id}/suspend`);
+    async suspendUser(user: User, until: Date): Promise<UserResult> {
+        const result = await axios.put(`/api/users/${user.id}/suspend`, {
+            suspendedUntil: until
+        });
         return result.data;
     },
     async deleteUser(user: User): Promise<void> {
         await axios.delete(`/api/users/${user.id}`);
-    }
+    },
+    async getGroups(realm: Realm): Promise<GroupsResult> {
+        const result = await axios.get<GroupsResult>(`/api/realms/${realm.id}/groups`);
+        return result.data;
+    },
+    async createGroup(realm: Realm, group:NewGroup): Promise<GroupResult> {
+        const result = await axios.post<Group>(`/api/realms/${realm.id}/groups`, group);
+        return result.data;
+    },
+    async updateGroup(group: UpdateGroup): Promise<GroupResult> {
+        const {id, ...props} = group;
+        const result = await axios.patch(`/api/groups/${id}`, props);
+        return result.data;
+    },
+    async deleteGroup(group: Group): Promise<void> {
+        await axios.delete(`/api/groups/${group.id}`);
+    },
 }

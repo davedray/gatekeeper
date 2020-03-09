@@ -10,11 +10,27 @@ export type User = {
     realmId: string;
     username: string;
     banned: boolean;
-    suspendedUntil: Date|null;
+    suspendedUntil: string|null;
 }
 
 export type NewUser = {
     username: string;
     password: string;
-    suspendedUntil?: Date|null;
+    suspendedUntil?: string|null;
 }
+
+export type Group = {
+    id: string;
+    realmId: string;
+    name: string;
+    description: string;
+}
+
+export type UpdateGroup = {
+    id: string;
+    realmId: string;
+    name?: string;
+    description?: string;
+}
+
+export type NewGroup = Omit<Group, "id">;

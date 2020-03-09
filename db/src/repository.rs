@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 
 use diesel::result::{DatabaseErrorKind, Error as DieselError};
-use domain::{AddRealmUser, Error, NewRealm, Realm, Repository as RepositoryInterface, UpdateRealm, User, SuspendUser, ChangeUserPassword, BanUser, ChangeUsername};
+use domain::{AddRealmUser, Error, NewRealm, Realm, Repository as RepositoryInterface, UpdateRealm, User, ChangeUserPassword, UpdateUser, LoginUser, UpdateGroup, Group, AddRealmGroup};
 use uuid::Uuid;
 
 use crate::queries;
@@ -67,38 +67,41 @@ impl RepositoryInterface for Repository {
     }
 
     fn list_realm_users(&self, realm: Uuid) -> Result<Vec<User>, Error> {
-        match queries::realms::list_users(&self.0, realm) {
+        match queries::users::find(&self.0, realm) {
             Err(error) => Err(Error::Database(error.to_string())),
             Ok(realms) => Ok(realms.iter().map(|r| User::from(r.clone())).collect()),
         }
     }
 
-    fn user_update_username(&self, user: ChangeUsername) -> Result<User, Error> {
-        let username = user.borrow().username.clone();
-        match queries::users::update_username(&self.0, user.into()) {
+    fn find_realm_user_by_username_password(&self, realm_id: Uuid, login: LoginUser) -> Result<User, Error> {
+        let username: String = login.username.clone();
+        match queries::users::find_for_authentication(&self.0, realm_id, username.clone()) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(user) => {
+                match user.check_password(login.password) {
+                    true => Ok(user.into()),
+                    false => Err(Error::LoginFailure)
+                }
+            }
+        }
+    }
+
+    fn update_user(&self, user: UpdateUser) -> Result<User, Error> {
+        let name = user.borrow().username.clone();
+        match queries::users::update(&self.0, user.into()) {
             Err(error) => {
                 let msg = error.to_string();
-                Err(handle_unique_error(msg, username, error))
+                match name {
+                    Some(name) => Err(handle_unique_error(msg, name, error)),
+                    _ => Err(Error::Database(error.to_string()))
+                }
+
             }
             Ok(user) => Ok(User::from(user)),
         }
     }
 
-    fn user_update_banned(&self, user: BanUser) -> Result<User, Error> {
-        match queries::users::ban(&self.0, user.into()) {
-            Err(error) => Err(Error::Database(error.to_string())),
-            Ok(user) => Ok(User::from(user)),
-        }
-    }
-
-    fn user_update_suspended(&self, user: SuspendUser) -> Result<User, Error> {
-        match queries::users::suspend(&self.0, user.into()) {
-            Err(error) => Err(Error::Database(error.to_string())),
-            Ok(user) => Ok(User::from(user)),
-        }
-    }
-
-    fn user_update_password(&self, user: ChangeUserPassword) -> Result<User, Error> {
+    fn update_user_password(&self, user: ChangeUserPassword) -> Result<User, Error> {
         match queries::users::update_password(&self.0, user.into()) {
             Err(error) => Err(Error::Database(error.to_string())),
             Ok(user) => Ok(User::from(user)),
@@ -107,6 +110,46 @@ impl RepositoryInterface for Repository {
 
     fn delete_user(&self, user: Uuid) -> Option<Error> {
         queries::users::delete(&self.0, user).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn list_realm_groups(&self, realm: Uuid) -> Result<Vec<Group>, Error> {
+        match queries::groups::find(&self.0, realm) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(groups) => Ok(groups.iter().map(|r| Group::from(r.clone())).collect()),
+        }
+    }
+
+    fn create_realm_group(&self, group: AddRealmGroup) -> Result<Group, Error> {
+        let name = group.name.clone();
+        match queries::groups::create(&self.0, group.into()) {
+            Err(error) => {
+                let msg = error.to_string();
+                Err(handle_unique_error(msg, name, error))
+            },
+            Ok(group) => Ok(Group::from(group))
+        }
+    }
+    fn update_group(&self, group: UpdateGroup) -> Result<Group, Error> {
+        let name = group.name.clone();
+        match queries::groups::update(&self.0, group.into()) {
+            Err(error) => {
+                let msg = error.to_string();
+                match name {
+                    Some(name) => Err(handle_unique_error(msg, name, error)),
+                    _ => Err(Error::Database(error.to_string()))
+                }
+
+            }
+            Ok(group) => Ok(Group::from(group)),
+        }
+    }
+
+    fn delete_group(&self, group: Uuid) -> Option<Error> {
+        queries::groups::delete(&self.0, group).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn user_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::users::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
     }
 }
 

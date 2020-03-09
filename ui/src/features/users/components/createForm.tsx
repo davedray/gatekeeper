@@ -7,7 +7,7 @@ import {
 import {Realm, NewUser} from "../../../types";
 
 interface props {
-    realm: Realm;
+    realm: Realm|null;
     onSave: (realm: Realm, user: NewUser) => Promise<any>;
     isSaving: boolean;
     error: string|null;
@@ -16,7 +16,7 @@ function CreateForm({realm, onSave, isSaving, error}: props) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const handleSubmit = async () => {
-        await onSave(realm, {
+        await onSave(realm!, {
             username,
             password,
         });
@@ -27,6 +27,9 @@ function CreateForm({realm, onSave, isSaving, error}: props) {
             setPassword('');
         }
     }, [isSaving, error]);
+    if (realm === null) {
+        return null;
+    }
     return (
         <>
             <FormGroup
@@ -44,7 +47,7 @@ function CreateForm({realm, onSave, isSaving, error}: props) {
             >
                 <InputGroup type="password" id="password" placeholder="Password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}/>
             </FormGroup>
-            <Button loading={isSaving} disabled={name === ''} icon="new-object" text="Create Realm" onClick={handleSubmit}/>
+            <Button loading={isSaving} disabled={username === ''} icon="user" text="Create User" onClick={handleSubmit}/>
         </>
     );
 }

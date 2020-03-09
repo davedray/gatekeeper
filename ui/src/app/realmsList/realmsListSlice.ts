@@ -5,7 +5,7 @@ import {AppThunk} from "../store";
 import { createErrorToast, createSuccessToast } from '../toasts/toastsSlice';
 interface RealmsListState {
     realms: Realm[];
-    selectedRealm: Realm|null;
+    selectedRealmId: string|null;
     realmsById: Record<string, Realm>;
     error: string|null;
     isLoading: boolean;
@@ -16,7 +16,7 @@ interface RealmsListState {
 
 const realmsListInitialState: RealmsListState = {
     realms: [],
-    selectedRealm: null,
+    selectedRealmId: null,
     realmsById: {},
     error: null,
     isLoading: false,
@@ -79,8 +79,8 @@ const realmsList = createSlice({
             state.error = null;
             state.isSaving[realm.id] = false;
             state.realmsById[realm.id] = realm;
-            if (state.selectedRealm !== null && state.selectedRealm.id === realm.id && !realm.enabled) {
-                state.selectedRealm = null;
+            if (state.selectedRealmId === realm.id && !realm.enabled) {
+                state.selectedRealmId = null;
             }
         },
         deleteRealmStart: startSaving,
@@ -90,8 +90,8 @@ const realmsList = createSlice({
             state.realms = state.realms.filter((r) => realm.id !== r.id);
             state.error = null;
             state.isSaving[realm.id] = false;
-            if (state.selectedRealm !== null && state.selectedRealm.id === realm.id) {
-                state.selectedRealm = null;
+            if (state.selectedRealmId === realm.id) {
+                state.selectedRealmId = null;
             }
             delete(state.realmsById[realm.id]);
         },
@@ -106,7 +106,7 @@ const realmsList = createSlice({
             state.error = null;
         },
         selectRealm(state: RealmsListState, {payload}: PayloadAction<Realm>) {
-            state.selectedRealm = payload;
+            state.selectedRealmId = payload.id;
         }
     }
 });

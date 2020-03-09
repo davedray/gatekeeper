@@ -6,14 +6,19 @@ import {fetchUsers} from '../../app/usersList/usersListSlice';
 import {Callout, Card, H3, Intent, NonIdealState,} from "@blueprintjs/core";
 import Picker from "../../features/realms/containers/picker";
 import './styles.scss';
-import Table from "../../features/users/table";
+import Table from "../../features/users/components/table";
 import {User} from "../../types";
+import ConnectedCreateForm from "../../features/users/containers/createForm";
 
 function Users() {
     const dispatch = useDispatch();
-    const { selectedRealm } = useSelector((state: RootState) => state.realmsList);
-    let users: User[]|undefined = [];
-    let isLoading: boolean|undefined = false;
+    const selectedRealm = useSelector((state: RootState) => {
+        const id = state.realmsList.selectedRealmId;
+        const selectedRealm = id ? state.realmsList.realmsById[id] : null;
+        return selectedRealm;
+    });
+    let users: User[] = [];
+    let isLoading: boolean = false;
     ({ usersByRealmId: { [selectedRealm?.id || '']: users }, isLoading: { [selectedRealm?.id || '']: isLoading} } = useSelector((state: RootState) => state.usersList));
     if (!users) {
         users = [];
@@ -31,8 +36,12 @@ function Users() {
           <p>Users are entities that are able to log into your system. They can have attributes associated with themselves like email, username, address, phone number, and birth day. They can be assigned group membership and have specific roles assigned to them.</p>
       </Callout>
       <Picker/>
+      { selectedRealm && (
+      <Card>
+        <ConnectedCreateForm/>
+      </Card>)}
       <Card className={isLoading ? 'bp3-skeleton' : ''}>
-      {!users || users.length === 0 ? (
+          {!users || users.length === 0 ? (
           <NonIdealState
               icon="user"
               title="No Users Exist"
