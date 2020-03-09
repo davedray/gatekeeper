@@ -1,6 +1,6 @@
-#Gatekeeper
+# Gatekeeper
 
-##Setup
+## Setup
 1. Install Postgresql, and create a user with the `CREATEDB` privilege
 
 ```
