@@ -4,6 +4,7 @@ pub enum Error {
     Database(String),
     DuplicateRealm(String),
     LoginFailure,
+    UserNotInGroupsRealm,
 }
 
 impl std::fmt::Display for Error {
@@ -12,6 +13,7 @@ impl std::fmt::Display for Error {
             Error::Database(ref msg) => write!(f, "Database: {}", msg),
             Error::DuplicateRealm(ref msg) => write!(f, "Duplicate Realm: {}", msg),
             Error::LoginFailure => write!(f, "Login Failure: This username / password combination does not exist"),
+            Error::UserNotInGroupsRealm => write!(f, "Error: This user doesn't belong to the same realm as this group"),
         }
     }
 }

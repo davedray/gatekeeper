@@ -24,13 +24,19 @@ function UserDrawer({isOpen, onClose, title, group, isLoading, userIds, onAddUse
             title={title}
         >
             {userIds.length > 0 ? (
-                <ConnectedUserTable userIds={userIds} group={group}/>
+                <>
+                    <ConnectedUserTable userIds={userIds} group={group}/>
+                    <div style={{padding: '0 10px'}}>
+                        {isOpen ? <ConnectedPicker onSelect={onAddUser} filterIds={userIds} title="Add User"/> : ''}
+                    </div>
+
+                </>
             ) : (
                 <NonIdealState
                     icon="user"
                     title="No Users Exist"
                     description="Add a user to this group to populate this list"
-                    action={<ConnectedPicker onSelect={onAddUser}/>}
+                    action={<ConnectedPicker onSelect={onAddUser} title="Add User"/>}
                 />
             )}
         </Drawer>

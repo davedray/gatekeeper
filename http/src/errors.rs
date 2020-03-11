@@ -6,6 +6,7 @@ pub enum Error {
     Database(String),
     DuplicateEntity(String),
     Unauthorized(String),
+    BadRequest(String),
 }
 
 impl warp::reject::Reject for Error {}
@@ -39,6 +40,10 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> 
         error = "Unauthorized";
         code = StatusCode::UNAUTHORIZED;
         message = e;
+    } else if let Some(Error::BadRequest(e)) = err.find() {
+        error = "Bad Request";
+        code = StatusCode::BAD_REQUEST;
+        message = e;
     } else {
         error = "Unknown";
         code = StatusCode::INTERNAL_SERVER_ERROR;
@@ -61,6 +66,9 @@ impl From<domain::Error> for Error {
             },
             domain::Error::LoginFailure => {
                 Self::Unauthorized(format!("This username / password combination does not exist"))
+            },
+            domain::Error::UserNotInGroupsRealm => {
+                Self::BadRequest(format!("This user does not belong to this groups realms"))
             }
         }
     }

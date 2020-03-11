@@ -10,9 +10,10 @@ interface props {
     loading: boolean;
     selected: string|null;
     onSelect: (user: User) => Promise<any>;
+    title?: string;
 }
 
-function Picker({users, loading, selected, onSelect}: props) {
+function Picker({users, loading, selected, onSelect, title='Select User'}: props) {
     const UserSelect = Select.ofType<User>();
     const handleSelect = async (user: User) => {
         await onSelect(user);
@@ -32,7 +33,7 @@ function Picker({users, loading, selected, onSelect}: props) {
             <Button
                 className="user-picker__button"
                 loading={loading}
-                text={selectedUser ? selectedUser.username : 'Select User'}
+                text={selectedUser ? selectedUser.username : title}
                 rightIcon={IconNames.DOUBLE_CARET_VERTICAL}
             />
         </UserSelect>

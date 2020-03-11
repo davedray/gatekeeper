@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
+use crate::User;
 
 pub struct Group {
     id: Uuid,
@@ -19,6 +20,16 @@ pub struct UpdateGroup {
     pub id: Uuid,
     pub name: Option<String>,
     pub description: Option<String>,
+}
+
+pub struct AddUserToGroup {
+    pub user_id: Uuid,
+    pub group_id: Uuid,
+}
+
+pub struct RemoveUserFromGroup {
+    pub user_id: Uuid,
+    pub group_id: Uuid,
 }
 
 impl Group {
@@ -44,5 +55,24 @@ impl Group {
             created_at,
             updated_at,
         }
+    }
+    pub fn add_user(&self, user: User) -> Result<AddUserToGroup, crate::Error> {
+        if user.realm_id() != self.realm_id() {
+            return Err(crate::Error::UserNotInGroupsRealm)
+        }
+        Ok(AddUserToGroup{
+            user_id: user.id(),
+            group_id: self.id(),
+        })
+    }
+
+    pub fn remove_user(&self, user: User) -> Result<RemoveUserFromGroup, crate::Error> {
+        if user.realm_id() != self.realm_id() {
+            return Err(crate::Error::UserNotInGroupsRealm)
+        }
+        Ok(RemoveUserFromGroup{
+            user_id: user.id(),
+            group_id: self.id(),
+        })
     }
 }

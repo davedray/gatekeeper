@@ -100,7 +100,7 @@ export const fetchGroupUsers = (group: Group): AppThunk => async dispatch => {
         return dispatch(getGroupUsersSuccess({group: group.id, users}));
     } catch (err) {
         dispatch(createErrorToast({
-            message: err.toString() || 'Could not fetch groups'
+            message: err.toString() || "Could not fetch group's users"
         }));
         return dispatch(getGroupUsersFailure({group: group.id, error: err.toString()}))
     }
@@ -111,12 +111,12 @@ export const createGroupUser = (group: Group, user: User): AppThunk => async dis
         dispatch(createGroupUserStart(group.id));
         await actions.createGroupUser(group, user);
         dispatch(createSuccessToast({
-            message: "Group Created"
+            message: "User added to group"
         }));
         return dispatch(createGroupUserSuccess({group: group.id, user: user.id}));
     } catch (err) {
         dispatch(createErrorToast({
-            message: err.toString() || 'Could not create group'
+            message: err.toString() || 'Could not add user to group'
         }));
         return dispatch(createGroupUserFailure({group: group.id, error: err.toString()}));
     }
@@ -127,12 +127,12 @@ export const deleteGroupUser = (group: Group, user: User): AppThunk => async dis
         dispatch(deleteGroupUserStart(group.id));
         await actions.deleteGroupUser(group, user);
         dispatch(createSuccessToast({
-            message: "Group Deleted"
+            message: "User removed from group"
         }));
         return dispatch(deleteGroupUserSuccess({group: group.id, user: user.id}));
     } catch (err) {
         dispatch(createErrorToast({
-            message: err.toString() || 'Could not delete group'
+            message: err.toString() || 'Could not remove user from group'
         }));
         return dispatch(deleteGroupUserFailure({group: group.id, error: err.toString()}))
     }

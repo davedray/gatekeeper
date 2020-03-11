@@ -4,7 +4,7 @@ import {
     Intent,
     Popover,
     Classes,
-    H5
+    H5, PopoverPosition
 } from "@blueprintjs/core";
 
 import {User} from "../../../types";
@@ -31,10 +31,11 @@ function TableRow({user, onDelete, error}: props) {
     return (
         <tr>
             <td>
-                {user.username}
+                {user ? user.username : 'ERROR'}
             </td>
             <td>
                 <Popover
+                    position={PopoverPosition.LEFT}
                     content={ <div className="TableRow__popover">
                         <H5>Confirm deletion</H5>
                         <p>Are you sure you want to remove this user from the group?</p>

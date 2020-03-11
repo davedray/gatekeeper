@@ -88,6 +88,14 @@ pub fn routes(
             .and(warp::get())
             .and(with_state(state.clone()))
             .and_then(handlers::users::list::in_group))
+        .or(warp::path!("api" / "groups" / Uuid / "users" / Uuid)
+            .and(warp::post())
+            .and(with_state(state.clone()))
+            .and_then(handlers::groups::actions::add_user_to_group))
+        .or(warp::path!("api" / "groups" / Uuid / "users" / Uuid)
+            .and(warp::delete())
+            .and(with_state(state.clone()))
+            .and_then(handlers::groups::actions::remove_user_from_group))
         .recover(crate::errors::handle_rejection)
 }
 

@@ -6,8 +6,10 @@ import {fetchUsers} from "../../../app/usersList/usersListSlice";
 import {User} from "../../../types";
 interface props {
     onSelect: (user: User) => Promise<any>;
+    filterIds?: string[];
+    title?: string;
 }
-function ConnectedPicker({onSelect}: props) {
+function ConnectedPicker({onSelect, filterIds = [], title= "Select User"}: props) {
     const dispatch = useDispatch();
     const selectedRealmId = useSelector((state: RootState) => state.realmsList.selectedRealmId);
     const selectedRealm = useSelector((state: RootState) => state.realmsList.realmsById[selectedRealmId || ''] || null);
@@ -15,12 +17,18 @@ function ConnectedPicker({onSelect}: props) {
     const isLoading = useSelector((state: RootState) => selectedRealmId ? state.usersList.isLoading[selectedRealmId] : false);
     const hasUsers = users.length > 0;
     useEffect(() => {
-        if (!hasUsers && selectedRealm !== null) {
+        if (!hasUsers && selectedRealm !== null && !isLoading) {
             dispatch(fetchUsers(selectedRealm))
         }
     }, [dispatch, hasUsers, selectedRealm]);
     return (
-        <Picker users={users} loading={isLoading} selected={selectedRealmId} onSelect={onSelect} />
+        <Picker
+            users={users.filter((u) => !filterIds?.includes(u.id))}
+            loading={isLoading}
+            selected={selectedRealmId}
+            onSelect={onSelect}
+            title={title}
+        />
     );
 }
 

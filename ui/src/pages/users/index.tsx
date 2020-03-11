@@ -25,7 +25,7 @@ function Users() {
     }
     const hasUsers = users.length > 0;
     useEffect(() => {
-        if (selectedRealm && !hasUsers) {
+        if (selectedRealm && !hasUsers && !isLoading) {
             dispatch(fetchUsers(selectedRealm))
         }
     }, [dispatch, selectedRealm, hasUsers])

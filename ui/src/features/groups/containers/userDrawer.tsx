@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {Group, User} from "../../../types";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../app/rootReducer";
@@ -16,13 +16,13 @@ function ConnectedUserDrawer({isOpen, onClose, title, group}: props) {
     const isLoading = useSelector((state: RootState) => state.groupUsers.isLoading[group.id] || false);
     const hasUsers = userIds.length;
     useEffect(() => {
-        if (!hasUsers) {
+        if (!hasUsers && isOpen) {
             dispatch(fetchGroupUsers(group));
         }
-    }, [dispatch, group, hasUsers]);
-    const onAddUser = async (user: User) => {
+    }, [dispatch, group, hasUsers, isOpen]);
+    const onAddUser = useCallback(async (user: User) => {
         return dispatch(createGroupUser(group, user));
-    }
+    }, [dispatch, group]);
     return (
         <UserDrawer
             isLoading={isLoading}

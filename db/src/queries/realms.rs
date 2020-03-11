@@ -1,4 +1,4 @@
-use crate::models::{Realm, UpdateRealm};
+use crate::models::{Realm, UpdateRealm, Group};
 use crate::Postgres;
 use diesel::prelude::*;
 use diesel::result::Error;
@@ -35,4 +35,9 @@ pub fn delete(repo: &Postgres, realm: Uuid) -> Option<Error> {
     diesel::delete(realms.find(realm))
         .execute(&repo.conn())
         .err()
+}
+
+pub fn find_group(repo: &Postgres, realm: Uuid, uuid: Uuid) -> Result<Group, Error> {
+    use crate::schema::groups::dsl::*;
+    groups.filter(id.eq(uuid).and(realm_id.eq(realm))).first(&repo.conn())
 }

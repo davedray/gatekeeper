@@ -38,7 +38,6 @@ table! {
     users_groups (user_id, group_id) {
         user_id -> Uuid,
         group_id -> Uuid,
-        name -> Varchar,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
     }

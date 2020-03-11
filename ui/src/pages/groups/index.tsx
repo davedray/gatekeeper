@@ -48,9 +48,9 @@ function Groups() {
           <Card className={isLoading ? 'bp3-skeleton' : ''}>
               {!groups || groups.length === 0 ? (
                   <NonIdealState
-                      icon="people"
-                      title="No Groups Exist"
-                      description="Create a group to populate this list"
+                      icon={selectedRealm ? "people" : 'globe-network'}
+                      title={selectedRealm ? "No Groups Exist" : 'Realm Not Selected'}
+                      description={selectedRealm ? "Create a group to populate this list" : 'Select a realm to populate this list'}
                   />
               ) : (
                   <Table groups={groups || []}/>

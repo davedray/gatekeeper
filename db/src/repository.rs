@@ -1,11 +1,11 @@
 use std::borrow::Borrow;
 
 use diesel::result::{DatabaseErrorKind, Error as DieselError};
-use domain::{AddRealmUser, Error, NewRealm, Realm, Repository as RepositoryInterface, UpdateRealm, User, ChangeUserPassword, UpdateUser, LoginUser, UpdateGroup, Group, AddRealmGroup};
+use domain::{AddRealmGroup, AddRealmUser, AddUserToGroup, RemoveUserFromGroup, ChangeUserPassword, Error, Group, LoginUser, NewRealm, Realm, Repository as RepositoryInterface, UpdateGroup, UpdateRealm, UpdateUser, User};
 use uuid::Uuid;
 
-use crate::queries;
 use crate::Postgres;
+use crate::queries;
 
 #[derive(Clone)]
 pub struct Repository(pub Postgres);
@@ -119,6 +119,20 @@ impl RepositoryInterface for Repository {
         }
     }
 
+    fn get_realm_group(&self, realm_id: Uuid, id: Uuid) -> Result<Group, Error> {
+        match queries::realms::find_group(&self.0, realm_id, id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(group) => Ok(Group::from(group))
+        }
+    }
+
+    fn get_group(&self, id: Uuid) -> Result<Group, Error> {
+        match queries::groups::find_one(&self.0,id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(group) => Ok(Group::from(group))
+        }
+    }
+
     fn create_realm_group(&self, group: AddRealmGroup) -> Result<Group, Error> {
         let name = group.name.clone();
         match queries::groups::create(&self.0, group.into()) {
@@ -129,6 +143,7 @@ impl RepositoryInterface for Repository {
             Ok(group) => Ok(Group::from(group))
         }
     }
+
     fn update_group(&self, group: UpdateGroup) -> Result<Group, Error> {
         let name = group.name.clone();
         match queries::groups::update(&self.0, group.into()) {
@@ -148,8 +163,26 @@ impl RepositoryInterface for Repository {
         queries::groups::delete(&self.0, group).map(|e| Error::Database(e.to_string()))
     }
 
+    fn get_realm_user(&self, realm_id: Uuid, id: Uuid) -> Result<User, Error> {
+        match queries::users::find_one(&self.0, realm_id, id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(user) => Ok(User::from(user))
+        }
+    }
+
     fn user_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error> {
         queries::users::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn create_group_user(&self, args: AddUserToGroup) -> Option<Error> {
+        match queries::groups::add_user(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn delete_group_user(&self, args: RemoveUserFromGroup) -> Option<Error> {
+        queries::groups::remove_user(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
     }
 }
 
