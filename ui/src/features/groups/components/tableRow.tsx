@@ -5,11 +5,12 @@ import {
     Popover,
     EditableText,
     Classes,
-    H5, ButtonGroup
+    H5, ButtonGroup, NonIdealState
 } from "@blueprintjs/core";
 import './tableRow.scss';
 import {Group} from "../../../types";
 import UserDrawer from "../containers/userDrawer";
+import RelatedDrawer from "../../relatedDrawer/component";
 interface props {
     group: Group,
     onUpdateName: (name: string) => Promise<any>;
@@ -25,6 +26,7 @@ function TableRow({group, error, ...actions}: props) {
     const [name, setName] = useState(group.name);
     const [description, setDescription] = useState(group.description);
     const [userDrawerOpen, setUserDrawerOpen] = useState(false);
+    const [roleDrawerOpen, setRoleDrawerOpen] = useState(false);
 
     const onUpdateName = async () => {
         if (name === group.name) return;
@@ -64,6 +66,7 @@ function TableRow({group, error, ...actions}: props) {
             <td>
                 <ButtonGroup>
                     <Button intent={Intent.NONE} text="View Users" icon="user" onClick={() => setUserDrawerOpen(true)}/>
+                    <Button intent={Intent.NONE} text="View Roles" icon="layers" onClick={() => setRoleDrawerOpen(true)}/>
                     <Popover
                         canEscapeKeyClose
                         onClose={() => setPopoverOpen(false)}
@@ -98,6 +101,17 @@ function TableRow({group, error, ...actions}: props) {
                     title={name}
                     group={group}
                 />
+                <RelatedDrawer
+                    emptyState={<NonIdealState />}
+                    hasChildren={true}
+                    icon="layers"
+                    title="Roles"
+                    isLoading={false}
+                    isOpen={roleDrawerOpen}
+                    onClose={() => setRoleDrawerOpen(false)}
+                >
+                    Test
+                </RelatedDrawer>
             </td>
         </tr>
     );

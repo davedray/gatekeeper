@@ -3,9 +3,10 @@ pub use realms::*;
 pub use repository::*;
 pub use users::*;
 pub use groups::*;
-
+pub use roles::*;
 pub mod groups;
 pub mod errors;
 pub mod realms;
 pub mod repository;
 pub mod users;
+pub mod roles;

@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
-use crate::User;
+use crate::{User, Role};
 
 pub struct Group {
     id: Uuid,
@@ -30,6 +30,16 @@ pub struct AddUserToGroup {
 pub struct RemoveUserFromGroup {
     pub user_id: Uuid,
     pub group_id: Uuid,
+}
+
+pub struct AddRoleToGroup {
+    pub group_id: Uuid,
+    pub role_id: Uuid,
+}
+
+pub struct RemoveRoleFromGroup {
+    pub group_id: Uuid,
+    pub role_id: Uuid,
 }
 
 impl Group {
@@ -72,6 +82,26 @@ impl Group {
         }
         Ok(RemoveUserFromGroup{
             user_id: user.id(),
+            group_id: self.id(),
+        })
+    }
+
+    pub fn add_role(&self, role: Role) -> Result<AddRoleToGroup, crate::Error> {
+        if role.realm_id() != self.realm_id() {
+            return Err(crate::Error::RoleNotInGroupsRealm)
+        }
+        Ok(AddRoleToGroup{
+            role_id: role.id(),
+            group_id: self.id(),
+        })
+    }
+
+    pub fn remove_role(&self, role: Role) -> Result<RemoveRoleFromGroup, crate::Error> {
+        if role.realm_id() != self.realm_id() {
+            return Err(crate::Error::RoleNotInGroupsRealm)
+        }
+        Ok(RemoveRoleFromGroup{
+            role_id: role.id(),
             group_id: self.id(),
         })
     }

@@ -35,3 +35,35 @@ pub async fn remove_user_from_group(
         None => Ok(warp::reply::reply())
     }
 }
+
+pub async fn add_role_to_group(
+    group_id: Uuid,
+    role_id: Uuid,
+    state: AppState,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let repository = &state.repository;
+    let role = repository.get_role(role_id).map_err(|err| warp::reject::custom(Error::from(err)) )?;
+    let group = repository.get_group(group_id).map_err(|err| warp::reject::custom(Error::from(err)) )?;
+    let update = group.add_role(role).map_err(|err| warp::reject::custom(Error::from(err)) )?;
+    let err = repository.create_group_role(update);
+    match err {
+        Some(err) => Err(warp::reject::custom(Error::from(err))),
+        None => Ok(warp::reply::reply())
+    }
+}
+
+pub async fn remove_role_from_group(
+    group_id: Uuid,
+    role_id: Uuid,
+    state: AppState,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let repository = &state.repository;
+    let role = repository.get_role(role_id).map_err(|err| warp::reject::custom(Error::from(err)) )?;
+    let group = repository.get_group(group_id).map_err(|err| warp::reject::custom(Error::from(err)) )?;
+    let update = group.remove_role(role).map_err(|err| warp::reject::custom(Error::from(err)) )?;
+    let err = repository.delete_group_role(update);
+    match err {
+        Some(err) => Err(warp::reject::custom(Error::from(err))),
+        None => Ok(warp::reply::reply())
+    }
+}

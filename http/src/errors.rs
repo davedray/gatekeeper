@@ -68,7 +68,13 @@ impl From<domain::Error> for Error {
                 Self::Unauthorized(format!("This username / password combination does not exist"))
             },
             domain::Error::UserNotInGroupsRealm => {
-                Self::BadRequest(format!("This user does not belong to this groups realms"))
+                Self::BadRequest(format!("This user does not belong to this group's realm"))
+            },
+            domain::Error::UserNotInRolesRealm => {
+                Self::BadRequest(format!("This user does not belong to this role's realm"))
+            },
+            domain::Error::RoleNotInGroupsRealm => {
+                Self::BadRequest(format!("This role does not belong to this group's realm"))
             }
         }
     }

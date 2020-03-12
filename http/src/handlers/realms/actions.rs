@@ -1,11 +1,12 @@
 use chrono::{DateTime, Utc};
-use domain::{NewUser, NewGroup, Repository};
+use domain::{NewUser, NewGroup, NewRole, Repository};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::errors::Error;
 use crate::handlers::realms::responses::UserResponse;
 use crate::handlers::groups::responses::GroupResponse;
+use crate::handlers::roles::responses::RoleResponse;
 use crate::server::AppState;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -72,4 +73,36 @@ pub async fn create_group(
         warp::reject::custom(Error::from(e))
     })?;
     Ok(warp::reply::json( &GroupResponse::from(group)))
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AddRoleRequest {
+    pub name: String,
+    pub description: String,
+}
+
+impl From<AddRoleRequest> for NewRole {
+    fn from(a: AddRoleRequest) -> NewRole {
+        NewRole {
+            name: a.name,
+            description: a.description,
+        }
+    }
+}
+
+pub async fn create_role(
+    id: Uuid,
+    form: AddRoleRequest,
+    state: AppState,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let repository = &state.repository;
+    let realm = repository.get_realm(id).map_err(|e| {
+        warp::reject::custom(Error::from(e))
+    })?;
+    let update = realm.add_role(form.into());
+    let role = repository.create_realm_role(update).map_err(|e| {
+        warp::reject::custom(Error::from(e))
+    })?;
+    Ok(warp::reply::json( &RoleResponse::from(role)))
 }

@@ -1,7 +1,30 @@
 use std::borrow::Borrow;
 
 use diesel::result::{DatabaseErrorKind, Error as DieselError};
-use domain::{AddRealmGroup, AddRealmUser, AddUserToGroup, RemoveUserFromGroup, ChangeUserPassword, Error, Group, LoginUser, NewRealm, Realm, Repository as RepositoryInterface, UpdateGroup, UpdateRealm, UpdateUser, User};
+use domain::{
+    AddRealmGroup,
+    AddRealmRole,
+    AddRealmUser,
+    AddRoleToGroup,
+    AddUserToGroup,
+    AddUserToRole,
+    ChangeUserPassword,
+    Error,
+    Group,
+    LoginUser,
+    NewRealm,
+    Realm,
+    RemoveRoleFromGroup,
+    RemoveUserFromGroup,
+    RemoveUserFromRole,
+    Repository as RepositoryInterface,
+    Role,
+    UpdateGroup,
+    UpdateRealm,
+    UpdateRole,
+    UpdateUser,
+    User
+};
 use uuid::Uuid;
 
 use crate::Postgres;
@@ -174,6 +197,14 @@ impl RepositoryInterface for Repository {
         queries::users::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
     }
 
+    fn role_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::roles::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn group_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::groups::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
+    }
+
     fn create_group_user(&self, args: AddUserToGroup) -> Option<Error> {
         match queries::groups::add_user(&self.0, args.into()) {
             Ok(_) => None,
@@ -183,6 +214,83 @@ impl RepositoryInterface for Repository {
 
     fn delete_group_user(&self, args: RemoveUserFromGroup) -> Option<Error> {
         queries::groups::remove_user(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn user_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::users::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn create_role_user(&self, args: AddUserToRole) -> Option<Error> {
+        match queries::roles::add_user(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn delete_role_user(&self, args: RemoveUserFromRole) -> Option<Error> {
+        queries::roles::remove_user(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn create_group_role(&self, args: AddRoleToGroup) -> Option<Error> {
+        match queries::groups::add_role(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn delete_group_role(&self, args: RemoveRoleFromGroup) -> Option<Error> {
+        queries::groups::remove_role(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn list_realm_roles(&self, realm: Uuid) -> Result<Vec<Role>, Error> {
+        match queries::roles::find(&self.0, realm) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(roles) => Ok(roles.iter().map(|r| Role::from(r.clone())).collect()),
+        }
+    }
+
+    fn get_realm_role(&self, realm_id: Uuid, id: Uuid) -> Result<Role, Error> {
+        match queries::realms::find_role(&self.0, realm_id, id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(role) => Ok(Role::from(role))
+        }
+    }
+
+    fn get_role(&self, id: Uuid) -> Result<Role, Error> {
+        match queries::roles::find_one(&self.0,id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(role) => Ok(Role::from(role))
+        }
+    }
+
+    fn create_realm_role(&self, role: AddRealmRole) -> Result<Role, Error> {
+        let name = role.name.clone();
+        match queries::roles::create(&self.0, role.into()) {
+            Err(error) => {
+                let msg = error.to_string();
+                Err(handle_unique_error(msg, name, error))
+            },
+            Ok(role) => Ok(Role::from(role))
+        }
+    }
+
+    fn update_role(&self, role: UpdateRole) -> Result<Role, Error> {
+        let name = role.name.clone();
+        match queries::roles::update(&self.0, role.into()) {
+            Err(error) => {
+                let msg = error.to_string();
+                match name {
+                    Some(name) => Err(handle_unique_error(msg, name, error)),
+                    _ => Err(Error::Database(error.to_string()))
+                }
+
+            }
+            Ok(role) => Ok(Role::from(role)),
+        }
+    }
+
+    fn delete_role(&self, role: Uuid) -> Option<Error> {
+        queries::roles::delete(&self.0, role).map(|e| Error::Database(e.to_string()))
     }
 }
 
