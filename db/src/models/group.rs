@@ -3,8 +3,8 @@ use diesel::{AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::models::{Realm, User};
-use crate::schema::{groups, users_groups};
+use crate::models::{Realm, Role, User};
+use crate::schema::{groups, groups_roles, users_groups};
 
 #[derive(Insertable, Identifiable, Queryable, Associations, Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[belongs_to(Realm, foreign_key = "realm_id")]
@@ -37,6 +37,26 @@ pub struct DeleteGroupUser {
     pub user_id: Uuid,
 }
 
+#[derive(Identifiable, Insertable, Queryable, Associations, Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[belongs_to(Group, foreign_key = "group_id")]
+#[belongs_to(Role, foreign_key = "role_id")]
+#[primary_key(group_id, role_id)]
+#[table_name="groups_roles"]
+pub struct GroupRole {
+    pub group_id: Uuid,
+    pub role_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Identifiable, Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[primary_key(group_id, role_id)]
+#[table_name="groups_roles"]
+pub struct DeleteGroupRole {
+    pub group_id: Uuid,
+    pub role_id: Uuid,
+}
+
 impl GroupUser {
     pub fn from(a: domain::AddUserToGroup) -> Self {
         Self {
@@ -49,9 +69,29 @@ impl GroupUser {
 }
 
 impl From<domain::RemoveUserFromGroup> for DeleteGroupUser {
-     fn from(a: domain::RemoveUserFromGroup) -> Self {
+    fn from(a: domain::RemoveUserFromGroup) -> Self {
         Self {
             user_id: a.user_id,
+            group_id: a.group_id,
+        }
+    }
+}
+
+impl GroupRole {
+    pub fn from(a: domain::AddRoleToGroup) -> Self {
+        Self {
+            role_id: a.role_id,
+            group_id: a.group_id,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        }
+    }
+}
+
+impl From<domain::RemoveRoleFromGroup> for DeleteGroupRole {
+    fn from(a: domain::RemoveRoleFromGroup) -> Self {
+        Self {
+            role_id: a.role_id,
             group_id: a.group_id,
         }
     }

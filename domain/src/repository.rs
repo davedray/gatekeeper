@@ -1,6 +1,28 @@
 use uuid::Uuid;
 
-use crate::{AddRealmGroup, AddRealmUser, AddUserToGroup, RemoveUserFromGroup, ChangeUserPassword, Error, Group, LoginUser, NewRealm, Realm, UpdateGroup, UpdateRealm, UpdateUser, User};
+use crate::{
+    AddRealmGroup,
+    AddRealmUser,
+    AddRealmRole,
+    AddRoleToGroup,
+    AddUserToGroup,
+    AddUserToRole,
+    ChangeUserPassword,
+    Error,
+    Group,
+    LoginUser,
+    NewRealm,
+    Realm,
+    Role,
+    RemoveRoleFromGroup,
+    RemoveUserFromGroup,
+    RemoveUserFromRole,
+    UpdateGroup,
+    UpdateRealm,
+    UpdateRole,
+    UpdateUser,
+    User
+};
 
 pub trait Repository {
     fn list_realms(&self) -> Result<Vec<Realm>, Error>;
@@ -24,4 +46,17 @@ pub trait Repository {
     fn user_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error>;
     fn create_group_user(&self, args: AddUserToGroup) -> Option<Error>;
     fn delete_group_user(&self, args: RemoveUserFromGroup) -> Option<Error>;
+    fn list_realm_roles(&self, realm: Uuid) -> Result<Vec<Role>, Error>;
+    fn get_realm_role(&self, realm_id: Uuid, id: Uuid) -> Result<Role, Error>;
+    fn get_role(&self, id: Uuid) -> Result<Role, Error>;
+    fn create_realm_role(&self, role: AddRealmRole) -> Result<Role, Error>;
+    fn update_role(&self, role: UpdateRole) -> Result<Role, Error>;
+    fn delete_role(&self, role: Uuid) -> Option<Error>;
+    fn user_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn create_role_user(&self, args: AddUserToRole) -> Option<Error>;
+    fn delete_role_user(&self, args: RemoveUserFromRole) -> Option<Error>;
+    fn create_group_role(&self, args: AddRoleToGroup) -> Option<Error>;
+    fn delete_group_role(&self, args: RemoveRoleFromGroup) -> Option<Error>;
+    fn role_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn group_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error>;
 }

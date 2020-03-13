@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {Realm, NewUser, User, Group, NewGroup, UpdateGroup} from "../types";
+import {Group, NewGroup, NewRole, NewUser, Realm, Role, UpdateGroup, UpdateRole, User} from "../types";
 
 export interface RealmsResult {
     realms: Realm[];
@@ -21,9 +21,31 @@ export interface GroupUsersResult {
     count: number;
 }
 
+export interface GroupRolesResult {
+    ids: string[];
+    count: number;
+}
+
+
+export interface RoleGroupsResult {
+    ids: string[];
+    count: number;
+}
+
+export interface RolesResult {
+    roles: Role[];
+    count: number;
+}
+
+export interface RoleUsersResult {
+    ids: string[];
+    count: number;
+}
+
 export interface RealmResult extends Realm{}
 export interface UserResult extends User{}
 export interface GroupResult extends Group{}
+export interface RoleResult extends Role{}
 
 export default {
     async getRealms(): Promise<RealmsResult> {
@@ -70,7 +92,7 @@ export default {
         const result = await axios.get<GroupsResult>(`/api/realms/${realm.id}/groups`);
         return result.data;
     },
-    async createGroup(realm: Realm, group:NewGroup): Promise<GroupResult> {
+    async createGroup(realm: Realm, group: NewGroup): Promise<GroupResult> {
         const result = await axios.post<Group>(`/api/realms/${realm.id}/groups`, group);
         return result.data;
     },
@@ -91,5 +113,51 @@ export default {
     },
     async deleteGroupUser(group: Group, user: User): Promise<void> {
         await axios.delete<GroupUsersResult>(`/api/groups/${group.id}/users/${user.id}`);
+    },
+    async getRoles(realm: Realm): Promise<RolesResult> {
+        const result = await axios.get<RolesResult>(`/api/realms/${realm.id}/roles`);
+        return result.data;
+    },
+    async createRole(realm: Realm, role: NewRole): Promise<RoleResult> {
+        const result = await axios.post<Role>(`/api/realms/${realm.id}/roles`, role);
+        return result.data;
+    },
+    async updateRole(role: UpdateRole): Promise<RoleResult> {
+        const {id, ...props} = role;
+        const result = await axios.patch(`/api/roles/${id}`, props);
+        return result.data;
+    },
+    async deleteRole(role: Role): Promise<void> {
+        await axios.delete(`/api/roles/${role.id}`);
+    },
+    async getRoleUsers(role: Role): Promise<string[]> {
+        let response = await axios.get<RoleUsersResult>(`/api/roles/${role.id}/users`);
+        return response.data.ids;
+    },
+    async createRoleUser(role: Role, user: User): Promise<void> {
+        await axios.post(`/api/roles/${role.id}/users/${user.id}`);
+    },
+    async deleteRoleUser(role: Role, user: User): Promise<void> {
+        await axios.delete(`/api/roles/${role.id}/users/${user.id}`);
+    },
+    async getGroupRoles(group: Group): Promise<string[]> {
+        let response = await axios.get<GroupRolesResult>(`/api/groups/${group.id}/roles`);
+        return response.data.ids;
+    },
+    async createGroupRole(group: Group, role: Role): Promise<void> {
+        await axios.post(`/api/groups/${group.id}/roles/${role.id}`);
+    },
+    async deleteGroupRole(group: Group, role: Role): Promise<void> {
+        await axios.delete(`/api/groups/${group.id}/roles/${role.id}`);
+    },
+    async getRoleGroups(role: Role): Promise<string[]> {
+        let response = await axios.get<RoleGroupsResult>(`/api/roles/${role.id}/groups`);
+        return response.data.ids;
+    },
+    async createRoleGroup(role: Role, group: Group): Promise<void> {
+        await axios.post(`/api/groups/${group.id}/roles/${role.id}`);
+    },
+    async deleteRoleGroup(role: Role, group: Group): Promise<void> {
+        await axios.delete(`/api/groups/${group.id}/roles/${role.id}`);
     },
 }

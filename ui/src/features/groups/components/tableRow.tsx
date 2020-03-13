@@ -5,26 +5,37 @@ import {
     Popover,
     EditableText,
     Classes,
-    H5, ButtonGroup
+    H5,
+    ButtonGroup
 } from "@blueprintjs/core";
 import './tableRow.scss';
-import {Group} from "../../../types";
+import {Group, Role, User} from "../../../types";
 import UserDrawer from "../containers/userDrawer";
+import RoleDrawer from "../containers/roleDrawer";
 interface props {
     group: Group,
     onUpdateName: (name: string) => Promise<any>;
     onUpdateDescription: (description: string) => Promise<any>;
     onDelete: () => Promise<any>;
     error: string|null;
+    onFetchRoles: () => any;
+    isLoadingRoles: boolean;
+    roleIds: string[];
+    userIds: string[];
+    onAddRole: (role: Role) => Promise<any>;
+    onDeleteRole: (role: Role) => Promise<any>;
+    onAddUser: (user: User) => Promise<any>;
+    onDeleteUser: (user: User) => Promise<any>;
 }
 
-function TableRow({group, error, ...actions}: props) {
+function TableRow({onAddRole, onDeleteRole, onFetchRoles, roleIds, isLoadingRoles, group, error, ...actions}: props) {
     const [updating, setUpdating] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
     const [name, setName] = useState(group.name);
     const [description, setDescription] = useState(group.description);
     const [userDrawerOpen, setUserDrawerOpen] = useState(false);
+    const [roleDrawerOpen, setRoleDrawerOpen] = useState(false);
 
     const onUpdateName = async () => {
         if (name === group.name) return;
@@ -64,6 +75,7 @@ function TableRow({group, error, ...actions}: props) {
             <td>
                 <ButtonGroup>
                     <Button intent={Intent.NONE} text="View Users" icon="user" onClick={() => setUserDrawerOpen(true)}/>
+                    <Button intent={Intent.NONE} text="View Roles" icon="layers" onClick={() => setRoleDrawerOpen(true)}/>
                     <Popover
                         canEscapeKeyClose
                         onClose={() => setPopoverOpen(false)}
@@ -97,6 +109,16 @@ function TableRow({group, error, ...actions}: props) {
                     onClose={() => setUserDrawerOpen(false)}
                     title={name}
                     group={group}
+                />
+                <RoleDrawer
+                    isLoading={isLoadingRoles}
+                    isOpen={roleDrawerOpen}
+                    onAddRole={onAddRole}
+                    onDeleteRole={onDeleteRole}
+                    onOpen={onFetchRoles}
+                    onClose={() => setRoleDrawerOpen(false)}
+                    roleIds={roleIds}
+                    emptyStateDescription="Add a role to this group to populate this list"
                 />
             </td>
         </tr>

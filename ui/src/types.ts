@@ -34,3 +34,17 @@ export type UpdateGroup = {
 }
 
 export type NewGroup = Omit<Group, "id">;
+
+export type Role = {
+    id: string;
+    realmId: string;
+    name: string;
+    description: string;
+}
+export type UpdateRole = {
+    id: string;
+    realmId: string;
+    name?: string;
+    description?: string;
+}
+export type NewRole = Omit<Role, "id">;
