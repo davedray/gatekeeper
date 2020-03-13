@@ -40,7 +40,7 @@ pub struct DeleteGroupUser {
 #[derive(Identifiable, Insertable, Queryable, Associations, Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[belongs_to(Group, foreign_key = "group_id")]
 #[belongs_to(Role, foreign_key = "role_id")]
-#[primary_key(role_id, group_id)]
+#[primary_key(group_id, role_id)]
 #[table_name="groups_roles"]
 pub struct GroupRole {
     pub group_id: Uuid,
@@ -50,7 +50,7 @@ pub struct GroupRole {
 }
 
 #[derive(Identifiable, Serialize, Deserialize, PartialEq, Debug, Clone)]
-#[primary_key(role_id, group_id)]
+#[primary_key(group_id, role_id)]
 #[table_name="groups_roles"]
 pub struct DeleteGroupRole {
     pub group_id: Uuid,

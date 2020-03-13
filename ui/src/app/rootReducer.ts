@@ -6,6 +6,7 @@ import groupsListReducer from './groupsList/groupsListSlice';
 import groupUsersReducer from './groupUsers/groupUsersSlice';
 import rolesListReducer from './rolesList/rolesListSlice';
 import roleUsersReducer from './roleUsers/roleUsersSlice';
+import roleGroupsReducer from './roleGroups/roleGroupsSlice';
 const rootReducer = combineReducers({
     realmsList: realmsListReducer,
     groupsList: groupsListReducer,
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
     usersList: usersListReducer,
     groupUsers: groupUsersReducer,
     roleUsers: roleUsersReducer,
+    roleGroups: roleGroupsReducer,
     toasts: toastsReducer,
 });
 export type RootState = ReturnType<typeof rootReducer>;

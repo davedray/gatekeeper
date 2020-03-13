@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {
     Drawer, Intent, NonIdealState, Spinner
 } from "@blueprintjs/core";
@@ -13,6 +13,7 @@ interface props {
     title: string;
     isLoading: boolean;
     isOpen: boolean;
+    onOpen?: () => any;
     onClose: () => any;
 };
 
@@ -25,9 +26,15 @@ function RelatedDrawer({
     title,
     isLoading,
     isOpen,
+    onOpen,
     onClose,
 }: props) {
-    console.log(title);
+    useEffect(() => {
+        if (isOpen && onOpen && !isLoading) {
+            console.log('calling onopen');
+            onOpen();
+        }
+    }, [isOpen, onOpen, isLoading]);
     return (
         <Drawer
             icon={icon}

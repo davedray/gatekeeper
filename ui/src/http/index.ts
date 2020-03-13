@@ -21,6 +21,17 @@ export interface GroupUsersResult {
     count: number;
 }
 
+export interface GroupRolesResult {
+    ids: string[];
+    count: number;
+}
+
+
+export interface RoleGroupsResult {
+    ids: string[];
+    count: number;
+}
+
 export interface RolesResult {
     roles: Role[];
     count: number;
@@ -127,6 +138,26 @@ export default {
         await axios.post(`/api/roles/${role.id}/users/${user.id}`);
     },
     async deleteRoleUser(role: Role, user: User): Promise<void> {
-        await axios.delete<RoleUsersResult>(`/api/roles/${role.id}/users/${user.id}`);
+        await axios.delete(`/api/roles/${role.id}/users/${user.id}`);
+    },
+    async getGroupRoles(group: Group): Promise<string[]> {
+        let response = await axios.get<GroupRolesResult>(`/api/groups/${group.id}/roles`);
+        return response.data.ids;
+    },
+    async createGroupRole(group: Group, role: Role): Promise<void> {
+        await axios.post(`/api/groups/${group.id}/roles/${role.id}`);
+    },
+    async deleteGroupRole(group: Group, role: Role): Promise<void> {
+        await axios.delete(`/api/groups/${group.id}/roles/${role.id}`);
+    },
+    async getRoleGroups(role: Role): Promise<string[]> {
+        let response = await axios.get<RoleGroupsResult>(`/api/roles/${role.id}/groups`);
+        return response.data.ids;
+    },
+    async createRoleGroup(role: Role, group: Group): Promise<void> {
+        await axios.post(`/api/groups/${group.id}/roles/${role.id}`);
+    },
+    async deleteRoleGroup(role: Role, group: Group): Promise<void> {
+        await axios.delete(`/api/groups/${group.id}/roles/${role.id}`);
     },
 }

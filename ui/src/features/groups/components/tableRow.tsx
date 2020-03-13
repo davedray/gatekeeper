@@ -5,21 +5,30 @@ import {
     Popover,
     EditableText,
     Classes,
-    H5, ButtonGroup, NonIdealState
+    H5,
+    ButtonGroup
 } from "@blueprintjs/core";
 import './tableRow.scss';
-import {Group} from "../../../types";
+import {Group, Role, User} from "../../../types";
 import UserDrawer from "../containers/userDrawer";
-import RelatedDrawer from "../../relatedDrawer/component";
+import RoleDrawer from "../containers/roleDrawer";
 interface props {
     group: Group,
     onUpdateName: (name: string) => Promise<any>;
     onUpdateDescription: (description: string) => Promise<any>;
     onDelete: () => Promise<any>;
     error: string|null;
+    onFetchRoles: () => any;
+    isLoadingRoles: boolean;
+    roleIds: string[];
+    userIds: string[];
+    onAddRole: (role: Role) => Promise<any>;
+    onDeleteRole: (role: Role) => Promise<any>;
+    onAddUser: (user: User) => Promise<any>;
+    onDeleteUser: (user: User) => Promise<any>;
 }
 
-function TableRow({group, error, ...actions}: props) {
+function TableRow({onAddRole, onDeleteRole, onFetchRoles, roleIds, isLoadingRoles, group, error, ...actions}: props) {
     const [updating, setUpdating] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [popoverOpen, setPopoverOpen] = useState(false);
@@ -101,17 +110,16 @@ function TableRow({group, error, ...actions}: props) {
                     title={name}
                     group={group}
                 />
-                <RelatedDrawer
-                    emptyState={<NonIdealState />}
-                    hasChildren={true}
-                    icon="layers"
-                    title="Roles"
-                    isLoading={false}
+                <RoleDrawer
+                    isLoading={isLoadingRoles}
                     isOpen={roleDrawerOpen}
+                    onAddRole={onAddRole}
+                    onDeleteRole={onDeleteRole}
+                    onOpen={onFetchRoles}
                     onClose={() => setRoleDrawerOpen(false)}
-                >
-                    Test
-                </RelatedDrawer>
+                    roleIds={roleIds}
+                    emptyStateDescription="Add a role to this group to populate this list"
+                />
             </td>
         </tr>
     );
