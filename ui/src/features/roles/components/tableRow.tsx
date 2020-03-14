@@ -10,6 +10,7 @@ import {
 import './tableRow.scss';
 import {Role} from "../../../types";
 import UserDrawer from "../containers/userDrawer";
+import GroupDrawer from "../containers/groupDrawer";
 interface props {
     role: Role,
     onUpdateName: (name: string) => Promise<any>;
@@ -25,6 +26,7 @@ function TableRow({role, error, ...actions}: props) {
     const [name, setName] = useState(role.name);
     const [description, setDescription] = useState(role.description);
     const [userDrawerOpen, setUserDrawerOpen] = useState(false);
+    const [groupDrawerOpen, setGroupDrawerOpen] = useState(false);
 
     const onUpdateName = async () => {
         if (name === role.name) return;
@@ -64,6 +66,7 @@ function TableRow({role, error, ...actions}: props) {
             <td>
                 <ButtonGroup>
                     <Button intent={Intent.NONE} text="View Users" icon="user" onClick={() => setUserDrawerOpen(true)}/>
+                    <Button intent={Intent.NONE} text="View Groups" icon="people" onClick={() => setGroupDrawerOpen(true)}/>
                     <Popover
                         canEscapeKeyClose
                         onClose={() => setPopoverOpen(false)}
@@ -97,6 +100,12 @@ function TableRow({role, error, ...actions}: props) {
                     onClose={() => setUserDrawerOpen(false)}
                     title={name}
                     role={role}
+                />
+                <GroupDrawer
+                    isOpen={groupDrawerOpen}
+                    onClose={() => setGroupDrawerOpen(false)}
+                    role={role}
+                    title={role.name}
                 />
             </td>
         </tr>

@@ -33,7 +33,7 @@ function TableRow({user, onBan, onUnban, onSuspend, onDelete, error}: props) {
 
     const onToggleBan = async () => {
         setToggling(true);
-        await user.banned ? onUnban() : onBan();
+        await (user.banned ? onUnban() : onBan());
         setToggling(false);
     };
 
@@ -96,7 +96,7 @@ function TableRow({user, onBan, onUnban, onSuspend, onDelete, error}: props) {
                         <H5>Confirm deletion</H5>
                         <p>Are you sure you want to delete this user? You won't be able to recover them.</p>
                         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>
-                            <Button onClick={() => setPopoverOpen(!popoverOpen)} className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
+                            <Button onClick={() => setPopoverOpen(false)} className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                                 Cancel
                             </Button>
                             <Button onClick={handleDelete} intent={Intent.DANGER} className={Classes.POPOVER_DISMISS}>
@@ -104,12 +104,12 @@ function TableRow({user, onBan, onUnban, onSuspend, onDelete, error}: props) {
                             </Button>
                         </div>
                     </div>}
-
+                    onClose={() => setPopoverOpen(false)}
                     isOpen={popoverOpen}
                 >
                     <Button
                         loading={deleting}
-                        onClick={() => setPopoverOpen(!popoverOpen)}
+                        onClick={() => setPopoverOpen(true)}
                         minimal
                         outlined={"true" as any}
                         intent={Intent.DANGER}

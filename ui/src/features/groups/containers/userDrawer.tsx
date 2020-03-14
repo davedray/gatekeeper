@@ -2,8 +2,8 @@ import React, {useCallback, useEffect} from 'react';
 import {Group, User} from "../../../types";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../app/rootReducer";
-import {fetchGroupUsers, createGroupUser} from "../../../app/groupUsers/groupUsersSlice";
-import UserDrawer from '../components/userDrawer';
+import {fetchGroupUsers, createGroupUser, deleteGroupUser} from "../../../app/groupUsers/groupUsersSlice";
+import UserDrawer from '../../users/components/userDrawer';
 interface props {
     isOpen: boolean;
     onClose: () => any;
@@ -13,6 +13,7 @@ interface props {
 function ConnectedUserDrawer({isOpen, onClose, title, group}: props) {
     const dispatch = useDispatch();
     const userIds = useSelector((state: RootState) => state.groupUsers.groupUsers[group.id] || []);
+    const users = useSelector((state: RootState) => userIds.map((id) => state.usersList.usersById[id]));
     const isLoading = useSelector((state: RootState) => state.groupUsers.isLoading[group.id] || false);
     const hasUsers = userIds.length;
     useEffect(() => {
@@ -23,15 +24,20 @@ function ConnectedUserDrawer({isOpen, onClose, title, group}: props) {
     const onAddUser = useCallback(async (user: User) => {
         return dispatch(createGroupUser(group, user));
     }, [dispatch, group]);
+    const onDeleteUser = useCallback(async (user: User) => {
+        return dispatch(deleteGroupUser(group, user));
+    }, [dispatch, group]);
     return (
         <UserDrawer
             isLoading={isLoading}
             isOpen={isOpen}
-            onClose={onClose}
-            title={title}
-            group={group}
-            userIds={userIds}
             onAddUser={onAddUser}
+            onDeleteUser={onDeleteUser}
+            selectedUserIds={userIds}
+            onClose={onClose}
+            users={users}
+            emptyStateDescription={'Add a user to this group to populate this list.'}
+            title={`${group.name} Users`}
         />
     );
 }

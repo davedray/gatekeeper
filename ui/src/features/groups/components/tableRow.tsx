@@ -111,14 +111,10 @@ function TableRow({onAddRole, onDeleteRole, onFetchRoles, roleIds, isLoadingRole
                     group={group}
                 />
                 <RoleDrawer
-                    isLoading={isLoadingRoles}
                     isOpen={roleDrawerOpen}
-                    onAddRole={onAddRole}
-                    onDeleteRole={onDeleteRole}
-                    onOpen={onFetchRoles}
                     onClose={() => setRoleDrawerOpen(false)}
-                    roleIds={roleIds}
-                    emptyStateDescription="Add a role to this group to populate this list"
+                    title={name}
+                    group={group}
                 />
             </td>
         </tr>

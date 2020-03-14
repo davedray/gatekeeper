@@ -1,52 +1,43 @@
-import React, {useEffect, useState} from 'react';
-import {Role} from "../../../types";
+import React, {useCallback, useEffect} from 'react';
+import {Group, Role} from "../../../types";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../app/rootReducer";
-import {fetchRoles} from "../../../app/rolesList/rolesListSlice";
+import {fetchGroupRoles, createRoleGroup, deleteRoleGroup} from "../../../app/roleGroups/roleGroupsSlice";
 import RoleDrawer from '../../roles/components/roleDrawer';
 interface props {
-    emptyStateDescription?: string;
-    isLoading: boolean;
     isOpen: boolean;
-    onAddRole: (role: Role) => Promise<any>;
-    onDeleteRole: (role: Role) => Promise<any>;
-    onOpen: () => any;
     onClose: () => any;
-    roleIds: string[];
+    group: Group;
+    title: string;
 }
-function ConnectedRoleDrawer({
-    emptyStateDescription,
-    isLoading,
-    isOpen,
-    onAddRole,
-    onClose,
-    onDeleteRole,
-    onOpen,
-    roleIds,
-}: props) {
+function ConnectedRoleDrawer({isOpen, onClose, title, group}: props) {
     const dispatch = useDispatch();
-    const selectedRealmId = useSelector((state: RootState) => state.realmsList.selectedRealmId);
-    const selectedRealm = useSelector((state: RootState) => state.realmsList.realmsById[selectedRealmId || '']);
-    const roles = useSelector((state: RootState) => selectedRealmId ? (state.rolesList.rolesByRealmId[selectedRealmId] || []) : []);
-    const isLoadingRoles = useSelector((state: RootState) => !!state.rolesList.isLoading[selectedRealmId || '']);
+    const roleIds = useSelector((state: RootState) => state.roleGroups.groupRoles[group.id] || []);
+    const roles = useSelector((state: RootState) => roleIds.map((id) => state.rolesList.rolesById[id]));
+    const isLoading = useSelector((state: RootState) => state.roleGroups.isLoadingRoles[group.id] || false);
+    const hasRoles = roleIds.length;
     useEffect(() => {
-        if (selectedRealm && isOpen && !isLoadingRoles && !roles.length) {
-            dispatch(fetchRoles(selectedRealm));
+        if (!hasRoles && isOpen) {
+            dispatch(fetchGroupRoles(group));
         }
-        if (isOpen && !isLoading && !roleIds.length) {
-            onOpen();
-        }
-    },[selectedRealm, isOpen, isLoadingRoles, roles.length]);
+    }, [dispatch, group, hasRoles, isOpen]);
+    const onAddRole = useCallback(async (role: Role) => {
+        return dispatch(createRoleGroup(role, group));
+    }, [dispatch, group]);
+    const onDeleteRole = useCallback(async (role: Role) => {
+        return dispatch(deleteRoleGroup(role, group));
+    }, [dispatch, group]);
     return (
         <RoleDrawer
-            isLoading={isLoadingRoles || isLoading}
+            isLoading={isLoading}
             isOpen={isOpen}
             onAddRole={onAddRole}
             onDeleteRole={onDeleteRole}
             selectedRoleIds={roleIds}
             onClose={onClose}
             roles={roles}
-            emptyStateDescription={emptyStateDescription}
+            emptyStateDescription={'Add a role to this group to populate this list.'}
+            title={`${group.name} Roles`}
         />
     );
 }

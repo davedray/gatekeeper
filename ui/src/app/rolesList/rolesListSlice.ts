@@ -6,6 +6,7 @@ import { createErrorToast, createSuccessToast } from '../toasts/toastsSlice';
 interface RolesListState {
     rolesByRealmId: Record<string, Role[]>;
     rolesById: Record<string, Role>;
+    hasRoles: Record<string, boolean>;
     error: string|null;
     isLoading: Record<string, boolean>;
     isCreating: Record<string, boolean>;
@@ -16,6 +17,7 @@ interface RolesListState {
 const rolesListInitialState: RolesListState = {
     rolesByRealmId: {},
     rolesById: {},
+    hasRoles: {},
     error: null,
     isLoading: {},
     isCreating: {},
@@ -66,6 +68,7 @@ const rolesList = createSlice({
             state.error = null;
             state.isLoading[payload.realm.id] = false;
             roles.forEach((role) => state.rolesById[role.id] = role);
+            state.hasRoles[payload.realm.id] = true;
         },
         updateRoleStart: startSaving,
         updateRoleFailure: savingFailed,

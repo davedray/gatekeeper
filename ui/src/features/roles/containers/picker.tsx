@@ -6,7 +6,6 @@ import {fetchRoles} from "../../../app/rolesList/rolesListSlice";
 import {Role} from "../../../types";
 interface props {
     onSelect: (role: Role) => Promise<any>;
-    roles?: Role[];
     filterIds?: string[];
     title?: string;
 }
@@ -16,7 +15,8 @@ function ConnectedPicker({onSelect, filterIds = [], title= "Select Role"}: props
     const selectedRealm = useSelector((state: RootState) => state.realmsList.realmsById[selectedRealmId || ''] || null);
     const roles = useSelector((state: RootState) => selectedRealmId ? state.rolesList.rolesByRealmId[selectedRealmId]  || []: []);
     const isLoading = useSelector((state: RootState) => selectedRealmId ? state.rolesList.isLoading[selectedRealmId] : false);
-    const hasRoles = roles.length > 0;
+    const hasRoles =  useSelector((state: RootState) => selectedRealmId ? (!!state.rolesList.rolesByRealmId[selectedRealmId]) : false);
+
     useEffect(() => {
         if (!hasRoles && selectedRealm !== null && !isLoading && typeof roles !== 'undefined') {
             dispatch(fetchRoles(selectedRealm))

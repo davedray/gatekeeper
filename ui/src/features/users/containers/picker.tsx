@@ -17,7 +17,7 @@ function ConnectedPicker({onSelect, filterIds = [], title= "Select User"}: props
     const isLoading = useSelector((state: RootState) => selectedRealmId ? state.usersList.isLoading[selectedRealmId] : false);
     const hasUsers = users.length > 0;
     useEffect(() => {
-        if (!hasUsers && selectedRealm !== null && !isLoading) {
+        if (!hasUsers && selectedRealm !== null && !isLoading && !users) {
             dispatch(fetchUsers(selectedRealm))
         }
     }, [dispatch, hasUsers, selectedRealm]);
