@@ -7,6 +7,7 @@ interface GroupUsersState {
     groupUsers: Record<string, string[]>;
     error: string|null;
     isLoading: Record<string, boolean>;
+    isLoaded: Record<string, boolean>;
     isCreating: Record<string, boolean>;
     isDeleting: Record<string, boolean>;
 }
@@ -15,6 +16,7 @@ const groupUsersInitialState: GroupUsersState = {
     groupUsers: {},
     error: null,
     isLoading: {},
+    isLoaded: {},
     isCreating: {},
     isDeleting: {}
 };
@@ -59,6 +61,7 @@ const groupUsers = createSlice({
             });
             state.error = null;
             state.isLoading[payload.group] = false;
+            state.isLoaded[payload.group] = true;
         },
         deleteGroupUserStart: startDeleting,
         deleteGroupUserFailure: deletingFailed,

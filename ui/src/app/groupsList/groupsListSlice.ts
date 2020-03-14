@@ -5,6 +5,7 @@ import {AppThunk} from "../store";
 import { createErrorToast, createSuccessToast } from '../toasts/toastsSlice';
 interface GroupsListState {
     groupsByRealmId: Record<string, Group[]>;
+    isLoaded: Record<string, boolean>;
     groupsById: Record<string, Group>;
     error: string|null;
     isLoading: Record<string, boolean>;
@@ -15,6 +16,7 @@ interface GroupsListState {
 
 const groupsListInitialState: GroupsListState = {
     groupsByRealmId: {},
+    isLoaded: {},
     groupsById: {},
     error: null,
     isLoading: {},
@@ -66,6 +68,7 @@ const groupsList = createSlice({
             state.error = null;
             state.isLoading[payload.realm.id] = false;
             groups.forEach((group) => state.groupsById[group.id] = group);
+            state.isLoaded[payload.realm.id] = true;
         },
         updateGroupStart: startSaving,
         updateGroupFailure: savingFailed,

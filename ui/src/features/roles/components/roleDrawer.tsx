@@ -48,6 +48,7 @@ function RoleDrawer({
             isOpen={isOpen}
             onClose={onClose}
         >
+            {!isLoading &&
             <HTMLTable
                 bordered
                 style={{width: '100%'}}
@@ -70,14 +71,16 @@ function RoleDrawer({
                         <td>
                             <Popover
                                 position={PopoverPosition.LEFT}
-                                content={ <div className="TableRow__popover">
+                                content={<div className="TableRow__popover">
                                     <H5>Confirm deletion</H5>
                                     <p>Are you sure you want to remove this role from the group?</p>
-                                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>
-                                        <Button onClick={() => setPopoverOpen(!popoverOpen)} className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
+                                    <div style={{display: "flex", justifyContent: "flex-end", marginTop: 15}}>
+                                        <Button onClick={() => setPopoverOpen(!popoverOpen)}
+                                                className={Classes.POPOVER_DISMISS} style={{marginRight: 10}}>
                                             Cancel
                                         </Button>
-                                        <Button onClick={() => handleDelete(role)} intent={Intent.DANGER} className={Classes.POPOVER_DISMISS}>
+                                        <Button onClick={() => handleDelete(role)} intent={Intent.DANGER}
+                                                className={Classes.POPOVER_DISMISS}>
                                             Delete
                                         </Button>
                                     </div>
@@ -100,6 +103,7 @@ function RoleDrawer({
                 ))}
                 </tbody>
             </HTMLTable>
+            }
             <div style={{padding: '0 10px'}}>
                 <RolePicker onSelect={onAddRole} filterIds={selectedRoleIds}/>
             </div>

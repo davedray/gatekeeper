@@ -5,6 +5,7 @@ import {AppThunk} from "../store";
 import { createErrorToast, createSuccessToast } from '../toasts/toastsSlice';
 interface UsersListState {
     usersByRealmId: Record<string, User[]>;
+    isLoaded: Record<string, boolean>;
     usersById: Record<string, User>;
     error: string|null;
     isLoading: Record<string, boolean>;
@@ -15,6 +16,7 @@ interface UsersListState {
 
 const usersListInitialState: UsersListState = {
     usersByRealmId: {},
+    isLoaded: {},
     usersById: {},
     error: null,
     isLoading: {},
@@ -66,6 +68,7 @@ const usersList = createSlice({
             state.error = null;
             state.isLoading[payload.realm.id] = false;
             users.forEach((user) => state.usersById[user.id] = user);
+            state.isLoaded[payload.realm.id] = true;
         },
         updateUserStart: startSaving,
         updateUserFailure: savingFailed,
