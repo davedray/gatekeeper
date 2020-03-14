@@ -21,7 +21,7 @@ function ConnectedPicker({onSelect, filterIds = [], title= "Select Role"}: props
         if (!hasRoles && selectedRealm !== null && !isLoading && typeof roles !== 'undefined') {
             dispatch(fetchRoles(selectedRealm))
         }
-    }, [dispatch, hasRoles, selectedRealm, roles]);
+    }, [dispatch, hasRoles, selectedRealm, roles, isLoading]);
     return (
         <Picker
             roles={roles.filter((u) => !filterIds?.includes(u.id))}

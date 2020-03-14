@@ -92,7 +92,7 @@ function TableRow({user, onBan, onUnban, onSuspend, onDelete, error}: props) {
             </td>
             <td>
                 <Popover
-                    content={ <div className="TableRow__popover">
+                    content={<div className="TableRow__popover">
                         <H5>Confirm deletion</H5>
                         <p>Are you sure you want to delete this user? You won't be able to recover them.</p>
                         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>

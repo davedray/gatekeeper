@@ -28,7 +28,7 @@ function Users() {
         if (selectedRealm && !hasUsers && !isLoading) {
             dispatch(fetchUsers(selectedRealm))
         }
-    }, [dispatch, selectedRealm, hasUsers])
+    }, [dispatch, selectedRealm, hasUsers, isLoading])
   return (
     <div>
       <Callout intent={Intent.PRIMARY}>

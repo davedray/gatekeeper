@@ -21,7 +21,7 @@ function ConnectedPicker({onSelect, filterIds = [], title= "Select Group"}: prop
         if (!hasGroups && selectedRealm !== null && !isLoading && typeof groups !== 'undefined') {
             dispatch(fetchGroups(selectedRealm))
         }
-    }, [dispatch, hasGroups, selectedRealm, groups]);
+    }, [dispatch, hasGroups, selectedRealm, groups, isLoading]);
     return (
         <Picker
             groups={groups.filter((g) => !filterIds?.includes(g.id))}

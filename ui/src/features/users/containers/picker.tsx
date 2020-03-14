@@ -20,7 +20,7 @@ function ConnectedPicker({onSelect, filterIds = [], title= "Select User"}: props
         if (!hasUsers && selectedRealm !== null && !isLoading && !users) {
             dispatch(fetchUsers(selectedRealm))
         }
-    }, [dispatch, hasUsers, selectedRealm]);
+    }, [dispatch, hasUsers, selectedRealm, isLoading, users]);
     return (
         <Picker
             users={users.filter((u) => !filterIds?.includes(u.id))}
