@@ -71,3 +71,8 @@ pub fn ids_by_role(repo: &Postgres, role: Uuid) -> Result<Vec<Uuid>, Error> {
     use crate::schema::groups_roles::dsl::*;
     groups_roles.filter(role_id.eq(role)).select(group_id).load(&repo.conn())
 }
+
+pub fn ids_by_user(repo: &Postgres, user: Uuid) -> Result<Vec<Uuid>, Error> {
+    use crate::schema::users_groups::dsl::*;
+    users_groups.filter(user_id.eq(user)).select(group_id).load(&repo.conn())
+}

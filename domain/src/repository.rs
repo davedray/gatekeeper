@@ -59,4 +59,6 @@ pub trait Repository {
     fn delete_group_role(&self, args: RemoveRoleFromGroup) -> Option<Error>;
     fn role_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error>;
     fn group_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn group_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn role_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error>;
 }

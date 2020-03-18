@@ -21,7 +21,17 @@ export interface GroupUsersResult {
     count: number;
 }
 
+export interface UserGroupsResult {
+    ids: string[];
+    count: number;
+}
+
 export interface GroupRolesResult {
+    ids: string[];
+    count: number;
+}
+
+export interface UserRolesResult {
     ids: string[];
     count: number;
 }
@@ -106,6 +116,14 @@ export default {
     },
     async getGroupUsers(group: Group): Promise<string[]> {
         let response = await axios.get<GroupUsersResult>(`/api/groups/${group.id}/users`);
+        return response.data.ids;
+    },
+    async getUserGroups(user: User): Promise<string[]> {
+        let response = await axios.get<UserGroupsResult>(`/api/users/${user.id}/groups`);
+        return response.data.ids;
+    },
+    async getUserRoles(user: User): Promise<string[]> {
+        let response = await axios.get<UserRolesResult>(`/api/users/${user.id}/roles`);
         return response.data.ids;
     },
     async createGroupUser(group: Group, user: User): Promise<void> {

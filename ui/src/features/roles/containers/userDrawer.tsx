@@ -4,6 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../app/rootReducer";
 import {fetchRoleUsers, createRoleUser, deleteRoleUser} from "../../../app/roleUsers/roleUsersSlice";
 import UserDrawer from '../../users/components/userDrawer';
+import {fetchUsers} from "../../../app/usersList/usersListSlice";
 interface props {
     isOpen: boolean;
     onClose: () => any;
@@ -12,15 +13,24 @@ interface props {
 }
 function ConnectedUserDrawer({isOpen, onClose, title, role}: props) {
     const dispatch = useDispatch();
+    const selectedRealm = useSelector((state: RootState) => state.realmsList.realmsById[state.realmsList.selectedRealmId || '']);
     const userIds = useSelector((state: RootState) => state.roleUsers.roleUsers[role.id] || []);
-    const users = useSelector((state: RootState) => userIds.map((id) => state.usersList.usersById[id]));
-    const isLoading = useSelector((state: RootState) => state.roleUsers.isLoading[role.id] || false);
-    const hasUsers = userIds.length;
+    const users = useSelector((state: RootState) => userIds.map((id) => state.usersList.usersById[id]).filter(i => i));
+    const isLoadingUserIds = useSelector((state: RootState) => state.roleUsers.isLoadingUsers[role.id] || false);
+    const hasUsers = useSelector((state: RootState) => state.usersList.isLoaded[selectedRealm ? selectedRealm.id : ''] || false);
+    const isLoadingUsers = useSelector((state: RootState) => state.usersList.isLoading[selectedRealm ? selectedRealm.id : ''] || false);
+    const hasUserIds = useSelector((state: RootState) => state.roleUsers.hasRoleUsers[role.id] || false);
+
     useEffect(() => {
-        if (!hasUsers && isOpen) {
+        if (!hasUserIds && !isLoadingUserIds && isOpen) {
             dispatch(fetchRoleUsers(role));
         }
-    }, [dispatch, role, hasUsers, isOpen]);
+    }, [dispatch, role, isLoadingUserIds, hasUserIds, isOpen]);
+    useEffect(() => {
+        if (!hasUsers && !isLoadingUsers && isOpen) {
+            dispatch(fetchUsers(selectedRealm));
+        }
+    }, [dispatch, role, isLoadingUsers, hasUsers, selectedRealm, isOpen]);
     const onAddUser = useCallback(async (user: User) => {
         return dispatch(createRoleUser(role, user));
     }, [dispatch, role]);
@@ -29,7 +39,7 @@ function ConnectedUserDrawer({isOpen, onClose, title, role}: props) {
     }, [dispatch, role]);
     return (
         <UserDrawer
-            isLoading={isLoading}
+            isLoading={isLoadingUsers || isLoadingUserIds}
             isOpen={isOpen}
             onAddUser={onAddUser}
             onDeleteUser={onDeleteUser}

@@ -25,11 +25,11 @@ function GroupDrawer({
     title,
     selectedGroupIds
 }: props) {
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [popoverOpen, setPopoverOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState<string|false>(false);
+    const [popoverOpen, setPopoverOpen] = useState<string|false>(false);
     const handleDelete = async (group: Group) => {
         setPopoverOpen(false);
-        setIsDeleting(true);
+        setIsDeleting(group.id);
         await onDeleteGroup(group);
         setIsDeleting(false);
     };
@@ -74,7 +74,7 @@ function GroupDrawer({
                                     <H5>Confirm deletion</H5>
                                     <p>Are you sure you want to remove this group from the group?</p>
                                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 15 }}>
-                                        <Button onClick={() => setPopoverOpen(!popoverOpen)} className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
+                                        <Button onClick={() => setPopoverOpen(group.id)} className={Classes.POPOVER_DISMISS} style={{ marginRight: 10 }}>
                                             Cancel
                                         </Button>
                                         <Button onClick={() => handleDelete(group)} intent={Intent.DANGER} className={Classes.POPOVER_DISMISS}>
@@ -83,11 +83,11 @@ function GroupDrawer({
                                     </div>
                                 </div>}
 
-                                isOpen={popoverOpen}
+                                isOpen={popoverOpen === group.id}
                             >
                                 <Button
-                                    loading={isDeleting}
-                                    onClick={() => setPopoverOpen(!popoverOpen)}
+                                    loading={isDeleting === group.id}
+                                    onClick={() => setPopoverOpen(group.id)}
                                     minimal
                                     outlined={"true" as any}
                                     intent={Intent.DANGER}

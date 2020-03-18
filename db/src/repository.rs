@@ -220,6 +220,14 @@ impl RepositoryInterface for Repository {
         queries::users::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
     }
 
+    fn group_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::groups::ids_by_user(&self.0, user).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn role_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::roles::ids_by_user(&self.0, user).map_err(|e| Error::Database(e.to_string()))
+    }
+
     fn create_role_user(&self, args: AddUserToRole) -> Option<Error> {
         match queries::roles::add_user(&self.0, args.into()) {
             Ok(_) => None,

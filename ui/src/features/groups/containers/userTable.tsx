@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect} from 'react';
 import Table from '../components/userTable';
 import {Group, User} from "../../../types";
-import {deleteGroupUser, fetchGroupUsers} from "../../../app/groupUsers/groupUsersSlice";
+import {deleteUserGroup, fetchGroupUsers} from "../../../app/groupUsers/groupUsersSlice";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../app/rootReducer";
 import {fetchUsers} from "../../../app/usersList/usersListSlice";
@@ -20,7 +20,7 @@ function ConnectedUserTable({group, userIds}: props) {
         }
     }, [users.length, selectedRealm, isLoading]);
     const onDelete = useCallback(async (user: User) => {
-        dispatch(deleteGroupUser(group, user));
+        dispatch(deleteUserGroup(user, group));
     }, [dispatch, group]);
 
     return (

@@ -28,3 +28,16 @@ pub async fn in_role(role: Uuid, state: AppState) -> Result<impl warp::Reply, wa
         Err(e) => Err(warp::reject::custom(e))
     }
 }
+
+pub async fn with_user(user: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
+    let repository = &state.repository;
+    let groups = repository.group_ids_with_user(user)
+        .map_err(|e| Error::from(e));
+    match groups {
+        Ok(groups) => Ok(warp::reply::json(&RelatedIds{
+            count: groups.len() as u64,
+            ids: groups,
+        })),
+        Err(e) => Err(warp::reject::custom(e))
+    }
+}
