@@ -41,3 +41,16 @@ pub async fn with_user(user: Uuid, state: AppState) -> Result<impl warp::Reply, 
         Err(e) => Err(warp::reject::custom(e))
     }
 }
+
+pub async fn with_permission(permission: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
+    let repository = &state.repository;
+    let groups = repository.group_ids_by_permission(permission)
+        .map_err(|e| Error::from(e));
+    match groups {
+        Ok(groups) => Ok(warp::reply::json(&RelatedIds{
+            count: groups.len() as u64,
+            ids: groups,
+        })),
+        Err(e) => Err(warp::reject::custom(e))
+    }
+}

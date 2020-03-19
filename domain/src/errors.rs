@@ -7,6 +7,9 @@ pub enum Error {
     UserNotInGroupsRealm,
     UserNotInRolesRealm,
     RoleNotInGroupsRealm,
+    RoleNotInPermissionsRealm,
+    UserNotInPermissionsRealm,
+    GroupNotInPermissionsRealm,
 }
 
 impl std::fmt::Display for Error {
@@ -18,6 +21,9 @@ impl std::fmt::Display for Error {
             Error::UserNotInGroupsRealm => write!(f, "Error: This user doesn't belong to the same realm as this group"),
             Error::UserNotInRolesRealm => write!(f, "Error: This user doesn't belong to the same realm as this role"),
             Error::RoleNotInGroupsRealm => write!(f, "Error: This role doesn't belong to the same realm as this group"),
+            Error::GroupNotInPermissionsRealm => write!(f, "Error: This group doesn't belong to the same realm as this permission"),
+            Error::UserNotInPermissionsRealm => write!(f, "Error: This user doesn't belong to the same realm as this permission"),
+            Error::RoleNotInPermissionsRealm => write!(f, "Error: This role doesn't belong to the same realm as this permission"),
         }
     }
 }

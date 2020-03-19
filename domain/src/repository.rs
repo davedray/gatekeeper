@@ -21,7 +21,16 @@ use crate::{
     UpdateRealm,
     UpdateRole,
     UpdateUser,
-    User
+    User,
+    Permission,
+    AddRealmPermission,
+    AddPermissionToRole,
+    AddPermissionToUser,
+    AddPermissionToGroup,
+    UpdatePermission,
+    RemovePermissionFromRole,
+    RemovePermissionFromUser,
+    RemovePermissionFromGroup,
 };
 
 pub trait Repository {
@@ -61,4 +70,22 @@ pub trait Repository {
     fn group_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error>;
     fn group_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error>;
     fn role_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn user_ids_by_permission(&self, permission: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn group_ids_by_permission(&self, permission: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn role_ids_by_permission(&self, permission: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn permission_ids_by_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn permission_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn permission_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error>;
+    fn list_realm_permissions(&self, realm: Uuid) -> Result<Vec<Permission>, Error>;
+    fn get_realm_permission(&self, realm_id: Uuid, id: Uuid) -> Result<Permission, Error>;
+    fn get_permission(&self, id: Uuid) -> Result<Permission, Error>;
+    fn create_realm_permission(&self, permission: AddRealmPermission) -> Result<Permission, Error>;
+    fn update_permission(&self, permission: UpdatePermission) -> Result<Permission, Error>;
+    fn delete_permission(&self, permission: Uuid) -> Option<Error>;
+    fn create_user_permission(&self, args: AddPermissionToUser) -> Option<Error>;
+    fn create_role_permission(&self, args: AddPermissionToRole) -> Option<Error>;
+    fn create_group_permission(&self, args: AddPermissionToGroup) -> Option<Error>;
+    fn delete_user_permission(&self, args: RemovePermissionFromUser) -> Option<Error>;
+    fn delete_role_permission(&self, args: RemovePermissionFromRole) -> Option<Error>;
+    fn delete_group_permission(&self, args: RemovePermissionFromGroup) -> Option<Error>;
 }

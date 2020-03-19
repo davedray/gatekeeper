@@ -1,3 +1,4 @@
+#![recursion_limit="2048"]
 use db::{connection::Postgres, Repository};
 use dotenv::dotenv;
 use http::server;

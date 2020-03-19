@@ -4,24 +4,23 @@ use uuid::Uuid;
 use crate::errors::Error;
 use crate::server::AppState;
 use crate::handlers::users::responses::RelatedIds;
-
-use super::responses::RolesResponse;
+use super::responses::PermissionsResponse;
 
 pub async fn list(realm: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
     let repository = &state.repository;
-    let roles = repository.list_realm_roles(realm)
+    let permissions = repository.list_realm_permissions(realm)
         .map_err(|e| Error::from(e));
-    match roles {
-        Ok(roles) => Ok(warp::reply::json(&RolesResponse::from(roles))),
+    match permissions {
+        Ok(permissions) => Ok(warp::reply::json(&PermissionsResponse::from(permissions))),
         Err(e) => Err(warp::reject::custom(e))
     }
 }
 
-pub async fn in_group(group: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn in_role(role: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
     let repository = &state.repository;
-    let roles = repository.role_ids_by_group(group)
+    let permissions = repository.permission_ids_by_role(role)
         .map_err(|e| Error::from(e));
-    match roles {
+    match permissions {
         Ok(users) => Ok(warp::reply::json(&RelatedIds{
             count: users.len() as u64,
             ids: users,
@@ -32,25 +31,25 @@ pub async fn in_group(group: Uuid, state: AppState) -> Result<impl warp::Reply, 
 
 pub async fn with_user(user: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
     let repository = &state.repository;
-    let roles = repository.role_ids_with_user(user)
+    let permissions = repository.permission_ids_by_user(user)
         .map_err(|e| Error::from(e));
-    match roles {
-        Ok(roles) => Ok(warp::reply::json(&RelatedIds{
-            count: roles.len() as u64,
-            ids: roles,
+    match permissions {
+        Ok(permissions) => Ok(warp::reply::json(&RelatedIds{
+            count: permissions.len() as u64,
+            ids: permissions,
         })),
         Err(e) => Err(warp::reject::custom(e))
     }
 }
 
-pub async fn with_permission(permission: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn in_group(group: Uuid, state: AppState) -> Result<impl warp::Reply, warp::Rejection> {
     let repository = &state.repository;
-    let groups = repository.role_ids_by_permission(permission)
+    let permissions = repository.permission_ids_by_group(group)
         .map_err(|e| Error::from(e));
-    match groups {
-        Ok(groups) => Ok(warp::reply::json(&RelatedIds{
-            count: groups.len() as u64,
-            ids: groups,
+    match permissions {
+        Ok(users) => Ok(warp::reply::json(&RelatedIds{
+            count: users.len() as u64,
+            ids: users,
         })),
         Err(e) => Err(warp::reject::custom(e))
     }

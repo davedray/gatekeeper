@@ -4,6 +4,8 @@ pub use repository::*;
 pub use users::*;
 pub use groups::*;
 pub use roles::*;
+pub use permissions::*;
+pub mod permissions;
 pub mod groups;
 pub mod errors;
 pub mod realms;

@@ -1,30 +1,7 @@
 use std::borrow::Borrow;
 
 use diesel::result::{DatabaseErrorKind, Error as DieselError};
-use domain::{
-    AddRealmGroup,
-    AddRealmRole,
-    AddRealmUser,
-    AddRoleToGroup,
-    AddUserToGroup,
-    AddUserToRole,
-    ChangeUserPassword,
-    Error,
-    Group,
-    LoginUser,
-    NewRealm,
-    Realm,
-    RemoveRoleFromGroup,
-    RemoveUserFromGroup,
-    RemoveUserFromRole,
-    Repository as RepositoryInterface,
-    Role,
-    UpdateGroup,
-    UpdateRealm,
-    UpdateRole,
-    UpdateUser,
-    User
-};
+use domain::{AddRealmGroup, AddRealmRole, AddRealmUser, AddRoleToGroup, AddUserToGroup, AddUserToRole, ChangeUserPassword, Error, Group, LoginUser, NewRealm, Realm, RemoveRoleFromGroup, RemoveUserFromGroup, RemoveUserFromRole, Repository as RepositoryInterface, Role, UpdateGroup, UpdateRealm, UpdateRole, UpdateUser, User, AddPermissionToRole, RemovePermissionFromRole, AddRealmPermission, RemovePermissionFromUser, AddPermissionToUser, Permission, AddPermissionToGroup, UpdatePermission, RemovePermissionFromGroup};
 use uuid::Uuid;
 
 use crate::Postgres;
@@ -109,6 +86,13 @@ impl RepositoryInterface for Repository {
         }
     }
 
+    fn get_realm_user(&self, realm_id: Uuid, id: Uuid) -> Result<User, Error> {
+        match queries::users::find_one(&self.0, realm_id, id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(user) => Ok(User::from(user))
+        }
+    }
+
     fn update_user(&self, user: UpdateUser) -> Result<User, Error> {
         let name = user.borrow().username.clone();
         match queries::users::update(&self.0, user.into()) {
@@ -186,23 +170,8 @@ impl RepositoryInterface for Repository {
         queries::groups::delete(&self.0, group).map(|e| Error::Database(e.to_string()))
     }
 
-    fn get_realm_user(&self, realm_id: Uuid, id: Uuid) -> Result<User, Error> {
-        match queries::users::find_one(&self.0, realm_id, id) {
-            Err(error) => Err(Error::Database(error.to_string())),
-            Ok(user) => Ok(User::from(user))
-        }
-    }
-
     fn user_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error> {
         queries::users::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
-    }
-
-    fn role_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error> {
-        queries::roles::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
-    }
-
-    fn group_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error> {
-        queries::groups::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
     }
 
     fn create_group_user(&self, args: AddUserToGroup) -> Option<Error> {
@@ -214,40 +183,6 @@ impl RepositoryInterface for Repository {
 
     fn delete_group_user(&self, args: RemoveUserFromGroup) -> Option<Error> {
         queries::groups::remove_user(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
-    }
-
-    fn user_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error> {
-        queries::users::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
-    }
-
-    fn group_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error> {
-        queries::groups::ids_by_user(&self.0, user).map_err(|e| Error::Database(e.to_string()))
-    }
-
-    fn role_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error> {
-        queries::roles::ids_by_user(&self.0, user).map_err(|e| Error::Database(e.to_string()))
-    }
-
-    fn create_role_user(&self, args: AddUserToRole) -> Option<Error> {
-        match queries::roles::add_user(&self.0, args.into()) {
-            Ok(_) => None,
-            Err(e) => Some(Error::Database(e.to_string()))
-        }
-    }
-
-    fn delete_role_user(&self, args: RemoveUserFromRole) -> Option<Error> {
-        queries::roles::remove_user(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
-    }
-
-    fn create_group_role(&self, args: AddRoleToGroup) -> Option<Error> {
-        match queries::groups::add_role(&self.0, args.into()) {
-            Ok(_) => None,
-            Err(e) => Some(Error::Database(e.to_string()))
-        }
-    }
-
-    fn delete_group_role(&self, args: RemoveRoleFromGroup) -> Option<Error> {
-        queries::groups::remove_role(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
     }
 
     fn list_realm_roles(&self, realm: Uuid) -> Result<Vec<Role>, Error> {
@@ -299,6 +234,156 @@ impl RepositoryInterface for Repository {
 
     fn delete_role(&self, role: Uuid) -> Option<Error> {
         queries::roles::delete(&self.0, role).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn user_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::users::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn create_role_user(&self, args: AddUserToRole) -> Option<Error> {
+        match queries::roles::add_user(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn delete_role_user(&self, args: RemoveUserFromRole) -> Option<Error> {
+        queries::roles::remove_user(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn create_group_role(&self, args: AddRoleToGroup) -> Option<Error> {
+        match queries::groups::add_role(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn delete_group_role(&self, args: RemoveRoleFromGroup) -> Option<Error> {
+        queries::groups::remove_role(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn role_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::roles::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn group_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::groups::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn group_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::groups::ids_by_user(&self.0, user).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn role_ids_with_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::roles::ids_by_user(&self.0, user).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn user_ids_by_permission(&self, permission: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::users::ids_by_permission(&self.0, permission).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn group_ids_by_permission(&self, permission: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::groups::ids_by_permission(&self.0, permission).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn role_ids_by_permission(&self, permission: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::roles::ids_by_permission(&self.0, permission).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn permission_ids_by_user(&self, user: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::permissions::ids_by_user(&self.0, user).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn permission_ids_by_group(&self, group: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::permissions::ids_by_group(&self.0, group).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn permission_ids_by_role(&self, role: Uuid) -> Result<Vec<Uuid>, Error> {
+        queries::permissions::ids_by_role(&self.0, role).map_err(|e| Error::Database(e.to_string()))
+    }
+
+    fn list_realm_permissions(&self, realm: Uuid) -> Result<Vec<Permission>, Error> {
+        match queries::permissions::find(&self.0, realm) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(permissions) => Ok(permissions.iter().map(|r| Permission::from(r.clone())).collect()),
+        }
+    }
+
+    fn get_realm_permission(&self, realm_id: Uuid, id: Uuid) -> Result<Permission, Error> {
+        match queries::realms::find_permission(&self.0, realm_id, id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(permission) => Ok(Permission::from(permission))
+        }
+    }
+
+    fn get_permission(&self, id: Uuid) -> Result<Permission, Error> {
+        match queries::permissions::find_one(&self.0,id) {
+            Err(error) => Err(Error::Database(error.to_string())),
+            Ok(permission) => Ok(permission.into())
+        }
+    }
+
+    fn create_realm_permission(&self, permission: AddRealmPermission) -> Result<Permission, Error> {
+        let name = permission.name.clone();
+        match queries::permissions::create(&self.0, permission.into()) {
+            Err(error) => {
+                let msg = error.to_string();
+                Err(handle_unique_error(msg, name, error))
+            },
+            Ok(permission) => Ok(permission.into())
+        }
+    }
+
+    fn update_permission(&self, permission: UpdatePermission) -> Result<Permission, Error> {
+        let name = permission.name.clone();
+        match queries::permissions::update(&self.0, permission.into()) {
+            Err(error) => {
+                let msg = error.to_string();
+                match name {
+                    Some(name) => Err(handle_unique_error(msg, name, error)),
+                    _ => Err(Error::Database(error.to_string()))
+                }
+
+            }
+            Ok(permission) => Ok(permission.into()),
+        }
+    }
+
+    fn delete_permission(&self, permission: Uuid) -> Option<Error> {
+        queries::permissions::delete(&self.0, permission).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn create_user_permission(&self, args: AddPermissionToUser) -> Option<Error> {
+        match queries::permissions::add_user(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn create_role_permission(&self, args: AddPermissionToRole) -> Option<Error> {
+        match queries::permissions::add_role(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn create_group_permission(&self, args: AddPermissionToGroup) -> Option<Error> {
+        match queries::permissions::add_group(&self.0, args.into()) {
+            Ok(_) => None,
+            Err(e) => Some(Error::Database(e.to_string()))
+        }
+    }
+
+    fn delete_user_permission(&self, args: RemovePermissionFromUser) -> Option<Error> {
+        queries::permissions::remove_user(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn delete_role_permission(&self, args: RemovePermissionFromRole) -> Option<Error> {
+        queries::permissions::remove_role(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
+    }
+
+    fn delete_group_permission(&self, args: RemovePermissionFromGroup) -> Option<Error> {
+        queries::permissions::remove_group(&self.0, args.into()).map(|e| Error::Database(e.to_string()))
     }
 }
 

@@ -42,6 +42,12 @@ pub struct AddRealmRole {
     pub description: String,
 }
 
+pub struct AddRealmPermission {
+    pub realm_id: Uuid,
+    pub name: String,
+    pub description: String,
+}
+
 impl Realm {
     pub fn id(&self) -> Uuid {
         self.id
@@ -83,6 +89,14 @@ impl Realm {
 
     pub fn add_role(&self, req: crate::NewRole) -> AddRealmRole {
         AddRealmRole {
+            realm_id: self.id,
+            name: req.name,
+            description: req.description,
+        }
+    }
+
+    pub fn add_permission(&self, req: crate::NewPermission) -> AddRealmPermission {
+        AddRealmPermission {
             realm_id: self.id,
             name: req.name,
             description: req.description,

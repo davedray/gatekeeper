@@ -67,3 +67,8 @@ pub fn ids_by_role(repo: &Postgres, role: Uuid) -> Result<Vec<Uuid>, Error> {
     use crate::schema::users_roles::dsl::*;
     users_roles.filter(role_id.eq(role)).select(user_id).load(&repo.conn())
 }
+
+pub fn ids_by_permission(repo: &Postgres, permission: Uuid) -> Result<Vec<Uuid>, Error> {
+    use crate::schema::users_permissions::dsl::*;
+    users_permissions.filter(permission_id.eq(permission)).select(user_id).load(&repo.conn())
+}

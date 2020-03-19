@@ -75,6 +75,15 @@ impl From<domain::Error> for Error {
             },
             domain::Error::RoleNotInGroupsRealm => {
                 Self::BadRequest(format!("This role does not belong to this group's realm"))
+            },
+            domain::Error::RoleNotInPermissionsRealm => {
+                Self::BadRequest(format!("This role does not belong to this permission's realm"))
+            },
+            domain::Error::UserNotInPermissionsRealm => {
+                Self::BadRequest(format!("This user does not belong to this permission's realm"))
+            },
+            domain::Error::GroupNotInPermissionsRealm => {
+                Self::BadRequest(format!("This group does not belong to this permission's realm"))
             }
         }
     }
