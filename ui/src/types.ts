@@ -48,3 +48,17 @@ export type UpdateRole = {
     description?: string;
 }
 export type NewRole = Omit<Role, "id">;
+
+export type Permission = {
+    id: string;
+    realmId: string;
+    name: string;
+    description: string;
+}
+export type UpdatePermission = {
+    id: string;
+    realmId: string;
+    name?: string;
+    description?: string;
+}
+export type NewPermission = Omit<Permission, "id">;
