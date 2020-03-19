@@ -255,39 +255,39 @@ export default {
         return response.data.ids;
     },
     async createGroupPermission(group: Group, permission: Permission): Promise<void> {
-        await axios.post(`/api/groups/${group.id}/permissions/${permission.id}`);
+        await axios.post(`/api/permissions/${permission.id}/groups/${group.id}`);
     },
     async deleteGroupPermission(group: Group, permission: Permission): Promise<void> {
-        await axios.delete(`/api/groups/${group.id}/permissions/${permission.id}`);
+        await axios.delete(`/api/permissions/${permission.id}/groups/${group.id}`);
     },
     async getPermissionGroups(permission: Permission): Promise<string[]> {
         let response = await axios.get<PermissionGroupsResult>(`/api/permissions/${permission.id}/groups`);
         return response.data.ids;
     },
     async createPermissionGroup(permission: Permission, group: Group): Promise<void> {
-        await axios.post(`/api/groups/${group.id}/permissions/${permission.id}`);
+        await axios.post(`/api/permissions/${permission.id}/groups/${group.id}`);
     },
     async deletePermissionGroup(permission: Permission, group: Group): Promise<void> {
-        await axios.delete(`/api/groups/${group.id}/permissions/${permission.id}`);
+        await axios.delete(`/api/permissions/${permission.id}/groups/${group.id}`);
     },
     async getRolePermissions(role: Role): Promise<string[]> {
         let response = await axios.get<RolePermissionsResult>(`/api/roles/${role.id}/permissions`);
         return response.data.ids;
     },
     async createRolePermission(role: Role, permission: Permission): Promise<void> {
-        await axios.post(`/api/roles/${role.id}/permissions/${permission.id}`);
+        await axios.post(`/api/permissions/${permission.id}/roles/${role.id}`);
     },
     async deleteRolePermission(role: Role, permission: Permission): Promise<void> {
-        await axios.delete(`/api/roles/${role.id}/permissions/${permission.id}`);
+        await axios.delete(`/api/permissions/${permission.id}/roles/${role.id}`);
     },
     async getPermissionRoles(permission: Permission): Promise<string[]> {
         let response = await axios.get<PermissionRolesResult>(`/api/permissions/${permission.id}/roles`);
         return response.data.ids;
     },
     async createPermissionRole(permission: Permission, role: Role): Promise<void> {
-        await axios.post(`/api/roles/${role.id}/permissions/${permission.id}`);
+        await axios.post(`/api/permissions/${permission.id}/roles/${role.id}`);
     },
     async deletePermissionRole(permission: Permission, role: Role): Promise<void> {
-        await axios.delete(`/api/roles/${role.id}/permissions/${permission.id}`);
+        await axios.delete(`/api/permissions/${permission.id}/roles/${role.id}`);
     },
 }
